@@ -56,13 +56,33 @@ class BackBanpickAnalyzer(tkinter.Tk):
         font1=tkinter.font.Font(family="맑은 고딕", size=20)
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
 
-        frame_top_width = window_width
+        frame_top_width = window_width/3
         frame_top_height = 80
-        frame_top = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="black") 
-        frame_top.place(x=0,y=0)
 
-        label_top=tkinter.Label(master=frame_top, text="밴픽", font=font1, bg="black", foreground="white")
-        label_top=label_top.place(anchor="center", x=window_width/2, y=frame_top_height/2)
+        frame_top1 = []
+        for i in range(5):
+            frame_top1.append(0)
+            frame_top1[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="blue",bd='1') 
+            frame_top1[i].place(x=frame_top_width/5*i,y=0)
+
+
+
+        frame_top2 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="black") 
+        frame_top2.place(x=frame_top_width,y=0)
+
+
+        frame_top3 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="red", bd='1') 
+        frame_top3.place(x=frame_top_width*2,y=0)
+
+        frame_top3 = []
+        for i in range(5):
+            frame_top3.append(0)
+            frame_top3[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="red",bd='1') 
+            frame_top3[i].place(x=frame_top_width*2+frame_top_width/5*i,y=0)
+
+        label_top=tkinter.Label(frame_top2, text="밴픽", font=font1, bg="black", foreground="white",anchor='center')
+        label_top.place(relx='0.42',rely='0.25')
+
 
 
         frame_blueTeam_width = 350;
@@ -96,12 +116,12 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_member_height = (frame_blueTeam_height - 40)/5
 
         frame_blueTeamMember = []
+ 
 
         for i in range(5):
             frame_blueTeamMember.append(0)
             frame_blueTeamMember[i] = tkinter.LabelFrame(frame_blueTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#7676EE", bd=1)
             frame_blueTeamMember[i].place(x=0, y=50+frame_member_height*i)
-
 
         frame_redTeamMember = []
 
