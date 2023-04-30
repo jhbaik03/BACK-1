@@ -3,6 +3,25 @@ import tkinter.font
 import numpy as np
 from tkinter import ttk
 from PIL import Image, ImageTk
+import pymysql
+
+# STEP 2: MySQL Connection 연결
+con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+                       db='back', charset='utf8') # 한글처리 (charset = 'utf8')
+ 
+# STEP 3: Connection 으로부터 Cursor 생성
+cur = con.cursor()
+ 
+# STEP 4: SQL문 실행 및 Fetch
+sql = "SELECT * FROM back.table_team;"
+cur.execute(sql)
+ 
+# 데이타 Fetch
+rows = cur.fetchall()
+print(rows)     # 전체 rows
+
+# STEP 5: DB 연결 종료
+con.close()
 
 T1=["Zeus","Oner","Faker", "Gumayusi","Keria"]
 Gen=["Doran","Peanut","Chovy","Peyz","Delight"]
