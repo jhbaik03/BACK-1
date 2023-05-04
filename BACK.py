@@ -3,6 +3,8 @@ import tkinter.font
 import numpy as np
 from tkinter import ttk
 from PIL import Image, ImageTk
+
+# STEP 1
 import pymysql
 
 # STEP 2: MySQL Connection 연결
@@ -13,12 +15,12 @@ con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
 cur = con.cursor()
  
 # STEP 4: SQL문 실행 및 Fetch
-sql = "SELECT * FROM back.table_team;"
+sql = "SELECT * FROM champion"
 cur.execute(sql)
  
 # 데이타 Fetch
-rows = cur.fetchall()
-print(rows)     # 전체 rows
+champs = cur.fetchall()
+champs = sorted(champs, key=lambda x:x[1])
 
 # STEP 5: DB 연결 종료
 con.close()
@@ -28,7 +30,6 @@ Gen=["Doran","Peanut","Chovy","Peyz","Delight"]
 
 window_width = 1280
 window_height = 720
-
 
 class BackBanpickAnalyzer(tkinter.Tk):
     def __init__(self):
@@ -186,8 +187,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_center_champion.place(anchor="n", x=frame_center_width/2, y=50)
 
         def callback_champion_click(event):
-                print(event.widget)
                 a = str(event.widget['text']).split(".!")
+                print(event.widget)
                 print(a)
                 selected_champion = event.widget
                 champion_image = selected_champion.cget('image')
@@ -215,15 +216,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
         scrollable_frame = tkinter.Frame(canvas_champions)
 
 # Frame에 내용 삽입
-        champion_num = 141
-
         frame_champions = []
         frame_champions_line = []
         frame_champions_width= (frame_center_width-40-35)/6
         frame_champions_height= frame_champions_width
+    
 
         class Champion:
-            def __init__(self, parent, image_path):
+            def __init__(self, parent, champion_name, image_path):
                 self.image = Image.open(image_path)
                 self.image_width = int(frame_champions_width)
                 self.image_height = self.image_width
@@ -231,9 +231,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 self.image_resize = self.image.resize((self.image_width, self.image_height), Image.LANCZOS)
                 self.img = ImageTk.PhotoImage(self.image_resize)
 
-                self.frame_champion = tkinter.LabelFrame(parent, width=frame_champions_width, height=frame_champions_height, relief="solid", bg="white", highlightthickness=0, text='Aatrox')
+                self.frame_champion = tkinter.LabelFrame(parent, width=frame_champions_width, height=frame_champions_height+15, 
+                                                         relief="solid", bg="white", highlightthickness=0, text=champion_name,
+                                                         labelanchor="s", padx=0, pady=0, border=0)
                 
-                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text="Aatrox", border=0)
+                self.frame_champion.bind("<Button-1>", callback_champion_click)
+                
+                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text=champion_name, 
+                                             border=0, padx=0, pady=0)
                 self.inframe.bind("<Button-1>", callback_champion_click)
                 self.inframe.place(x=0, y=0)
 
@@ -241,20 +246,24 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 return self.inframe['text']
             
             def __del__(self):
-                self.inframe.destroy()
-                self.frame_champion.destroy()
+                try:
+                    self.inframe.destroy()
+                    self.frame_champion.destroy()
+                except:
+                    pass
 
         line_num = -1
-        for i in range(champion_num):
+        for i in range(len(champs)):
             if i % 6 == 0:
                 frame_champions_line.append(0)
                 line_num = line_num + 1
-                frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width=frame_champions_width*6+5*7, height=frame_champions_height, bg="gray", bd=5)
+                frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width=frame_champions_width*6+5*7, height=frame_champions_height+15, bg="gray", bd=5)
                 frame_champions_line[line_num].pack()
 
-            champion = Champion(frame_champions_line[line_num], "Aatrox.png")
+            champion = Champion(frame_champions_line[line_num], champs[i][1], "lck analyzing tool/champ/"+ champs[i][3] +".png")
             champion.frame_champion.place(x=(i % 6)*frame_champions_width + (i % 6)*5, y=0)
             frame_champions.append(champion)
+        
 
 
 
@@ -267,31 +276,35 @@ class BackBanpickAnalyzer(tkinter.Tk):
         def search():
     # Text 위젯에서 입력된 값 가져오기
             text = text_search.get("1.0", "end-1c")
-
+            text_search.delete("1.0", "end")
     # 입력값을 포함하는 Frame만 저장하기
-            filtered_text = []
-            for champion in frame_champions:
-                if text.lower() in champion.name().lower():
-                    filtered_text.append(champion.name())
+            filtered_champs = []
 
-            print(filtered_text)  
+            for i in champs:
+                if text in i[1]:
+                    filtered_champs.append(i)
+
+            print(filtered_champs)  
 
     # 모든 Frame을 숨기기
             for champion in frame_champions:
                 del champion
             for frame in frame_champions_line:
                 frame.destroy()
+            
+            frame_champions_line.clear()
+
 
             line_num=-1
     # 새로운 순서로 Frame을 보여주기
-            for i in range(len(filtered_text)):
+            for i in range(len(filtered_champs)):
                 if i%6==0:
                     frame_champions_line.append(0)
                     line_num = line_num+1
-                    frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width = frame_champions_width*6+5*7, height= frame_champions_height, bg="gray", bd=5)
+                    frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width = frame_champions_width*6+5*7, height= frame_champions_height+15, bg="gray", bd=5)
                     frame_champions_line[line_num].pack()
-    # print(i)
-                champion = Champion(frame_champions_line[line_num], "Aatrox.png")
+
+                champion = Champion(frame_champions_line[line_num], filtered_champs[i][1], "lck analyzing tool/champ/"+ filtered_champs[i][3] +".png")
                 champion.frame_champion.place(x=(i % 6)*frame_champions_width + (i % 6)*5, y=0)
                 frame_champions.append(champion)
 
