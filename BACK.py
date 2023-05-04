@@ -189,6 +189,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print(event.widget)
                 a = str(event.widget['text']).split(".!")
                 print(a)
+                selected_champion = event.widget
+                champion_image = selected_champion.cget('image')
+
+    # 챔피언 이미지를 image_to_paste 배열에 추가
+                self.image_to_paste = champion_image
+                if self.image_to_paste is not None:
+                    print("copy")
+
 
 
 #######챔피언 고르는 Frame 설정(scrollbar)
