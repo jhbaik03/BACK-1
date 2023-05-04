@@ -69,6 +69,30 @@ class BackBanpickAnalyzer(tkinter.Tk):
         for widget in self.winfo_children():
              widget.destroy()
 
+        image_to_paste = None
+
+        def callback_champion_click(event):
+            global image_to_paste
+            print(event.widget)
+            a = str(event.widget['text']).split(".!")
+            print(a)
+                    # 선택된 챔피언 라벨에서 이름과 이미지 정보 가져오기
+            selected_champion = event.widget
+            champion_image = selected_champion.cget('image')
+
+    # 챔피언 이미지를 image_to_paste 배열에 추가
+            image_to_paste = champion_image
+            if image_to_paste is not None:
+                print("copy")
+
+        def paste_image(event):
+        # 클릭한 프레임에 이미지 붙여넣기
+            global image_to_paste
+            if image_to_paste is not None:
+                event.widget.configure(image=image_to_paste)
+            elif image_to_paste is None:
+                print("NONE")
+
         self.title("픽창")
         self.geometry("{}x{}+100+50".format(window_width, window_height))
         self.resizable(False, False)
@@ -80,28 +104,34 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_top_height = 80
 
         frame_top1 = []
+        label_top1 = []
+        label_top3 = []
+
         for i in range(5):
             frame_top1.append(0)
-            frame_top1[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="blue",bd='1') 
+            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = frame_top_height, relief="solid", bg="blue",bd='1')
             frame_top1[i].place(x=frame_top_width/5*i,y=0)
-
+            label_top1.append(0)
+            label_top1[i] = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5),height=frame_top_height)
+            label_top1[i].pack()
+            label_top1[i].bind('<Button-1>',paste_image)
 
 
         frame_top2 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="black") 
         frame_top2.place(x=frame_top_width,y=0)
 
 
-        frame_top3 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="red", bd='1') 
-        frame_top3.place(x=frame_top_width*2,y=0)
-
+        
         frame_top3 = []
         for i in range(5):
             frame_top3.append(0)
             frame_top3[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="red",bd='1') 
             frame_top3[i].place(x=frame_top_width*2+frame_top_width/5*i,y=0)
+            label_top3.append(0)
+            label_top3[i] = tkinter.Label(frame_top3[i],bg="red",anchor="center",width = int(frame_top_width/5), height = frame_top_height)
+            label_top3[i].pack()
+            label_top3[i].bind('<Button-1>',paste_image)
 
-        label_top=tkinter.Label(frame_top2, text="밴픽", font=font1, bg="black", foreground="white",anchor='center')
-        label_top.place(relx='0.42',rely='0.25')
 
 
 
@@ -186,17 +216,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_center_champion = tkinter.Frame(frame_center, width = frame_center_width-20, height= frame_center_height-60, relief="solid", bg="#222222", bd=1)
         frame_center_champion.place(anchor="n", x=frame_center_width/2, y=50)
 
-        def callback_champion_click(event):
-                a = str(event.widget['text']).split(".!")
-                print(event.widget)
-                print(a)
-                selected_champion = event.widget
-                champion_image = selected_champion.cget('image')
 
-    # 챔피언 이미지를 image_to_paste 배열에 추가
-                self.image_to_paste = champion_image
-                if self.image_to_paste is not None:
-                    print("copy")
 
 
 
