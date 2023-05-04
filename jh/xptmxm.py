@@ -76,28 +76,34 @@ class BackBanpickAnalyzer(tkinter.Tk):
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
 
         frame_top_width = window_width/3
-        frame_top_height = 80
+        frame_top_height = 85
 
         frame_top1 = []
+
         for i in range(5):
             frame_top1.append(0)
-            frame_top1[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="blue",bd='1') 
+            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = frame_top_height, relief="solid", bg="blue",bd='1')
             frame_top1[i].place(x=frame_top_width/5*i,y=0)
-
+            label_top1 = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5), height = frame_top_height)
+            label_top1.pack()
 
 
         frame_top2 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="black") 
         frame_top2.place(x=frame_top_width,y=0)
 
 
-        frame_top3 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="red", bd='1') 
-        frame_top3.place(x=frame_top_width*2,y=0)
+        # frame_top3 = tkinter.Frame(self, width = frame_top_width, height = frame_top_height, relief="solid", bg="red", bd='1') 
+        # frame_top3.place(x=frame_top_width*2,y=0)
 
         frame_top3 = []
         for i in range(5):
             frame_top3.append(0)
             frame_top3[i] = tkinter.Frame(self, width = frame_top_width/5, height = frame_top_height, relief="solid", bg="red",bd='1') 
             frame_top3[i].place(x=frame_top_width*2+frame_top_width/5*i,y=0)
+            label_top3 = tkinter.Label(frame_top3[i],bg="red",anchor="center",width = int(frame_top_width/5), height = frame_top_height)
+            label_top3.pack()
+
+
 
         label_top=tkinter.Label(frame_top2, text="밴픽", font=font1, bg="black", foreground="white",anchor='center')
         label_top.place(relx='0.42',rely='0.25')
@@ -189,6 +195,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print(event.widget)
                 a = str(event.widget['text']).split(".!")
                 print(a)
+                    # 선택된 챔피언 라벨에서 이름과 이미지 정보 가져오기
                 selected_champion = event.widget
                 champion_image = selected_champion.cget('image')
 
@@ -196,7 +203,6 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 self.image_to_paste = champion_image
                 if self.image_to_paste is not None:
                     print("copy")
-
 
 
 #######챔피언 고르는 Frame 설정(scrollbar)
@@ -296,6 +302,16 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 frame_champions.append(champion)
 
 
+   # 바인딩 1: 이미지 복사
+            label_top1.bind('<Button-1>', self.paste_image)  # 바인딩 2: 이미지 붙여넣기
+
+
+        def paste_image(self, event):
+        # 클릭한 프레임에 이미지 붙여넣기
+            if self.image_to_paste is not None:
+                event.widget.configure(image=self.image_to_paste)
+            elif self.image_to_paste is None:
+                print("NONE")
 
 # 검색 버튼 바인딩
         text_search.bind("<Return>", lambda event: search())
