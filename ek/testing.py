@@ -31,7 +31,6 @@ Gen=["Doran","Peanut","Chovy","Peyz","Delight"]
 window_width = 1280
 window_height = 720
 
-
 class BackBanpickAnalyzer(tkinter.Tk):
     def __init__(self):
         super().__init__()
@@ -232,9 +231,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 self.image_resize = self.image.resize((self.image_width, self.image_height), Image.LANCZOS)
                 self.img = ImageTk.PhotoImage(self.image_resize)
 
-                self.frame_champion = tkinter.LabelFrame(parent, width=frame_champions_width, height=frame_champions_height, relief="solid", bg="white", highlightthickness=0, text=champion_name)
+                self.frame_champion = tkinter.LabelFrame(parent, width=frame_champions_width, height=frame_champions_height+15, 
+                                                         relief="solid", bg="white", highlightthickness=0, text=champion_name,
+                                                         labelanchor="s", padx=0, pady=0, border=0)
                 
-                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text=champion_name, border=0)
+                self.frame_champion.bind("<Button-1>", callback_champion_click)
+                
+                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text=champion_name, 
+                                             border=0, padx=0, pady=0)
                 self.inframe.bind("<Button-1>", callback_champion_click)
                 self.inframe.place(x=0, y=0)
 
@@ -253,7 +257,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             if i % 6 == 0:
                 frame_champions_line.append(0)
                 line_num = line_num + 1
-                frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width=frame_champions_width*6+5*7, height=frame_champions_height, bg="gray", bd=5)
+                frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width=frame_champions_width*6+5*7, height=frame_champions_height+15, bg="gray", bd=5)
                 frame_champions_line[line_num].pack()
 
             champion = Champion(frame_champions_line[line_num], champs[i][1], "lck analyzing tool/champ/"+ champs[i][3] +".png")
@@ -297,9 +301,9 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 if i%6==0:
                     frame_champions_line.append(0)
                     line_num = line_num+1
-                    frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width = frame_champions_width*6+5*7, height= frame_champions_height, bg="gray", bd=5)
+                    frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width = frame_champions_width*6+5*7, height= frame_champions_height+15, bg="gray", bd=5)
                     frame_champions_line[line_num].pack()
-                    
+
                 champion = Champion(frame_champions_line[line_num], filtered_champs[i][1], "lck analyzing tool/champ/"+ filtered_champs[i][3] +".png")
                 champion.frame_champion.place(x=(i % 6)*frame_champions_width + (i % 6)*5, y=0)
                 frame_champions.append(champion)
