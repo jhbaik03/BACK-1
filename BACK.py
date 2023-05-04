@@ -109,10 +109,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         for i in range(5):
             frame_top1.append(0)
-            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = frame_top_height, relief="solid", bg="blue",bd='1')
+            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = int(frame_top_height), relief="solid", bg="blue",bd='1')
             frame_top1[i].place(x=frame_top_width/5*i,y=0)
             label_top1.append(0)
-            label_top1[i] = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5),height=frame_top_height)
+            label_top1[i] = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5),height=int(frame_top_height))
             label_top1[i].pack()
             label_top1[i].bind('<Button-1>',paste_image)
 
@@ -132,7 +132,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_top3[i].pack()
             label_top3[i].bind('<Button-1>',paste_image)
 
-
+        label_top=tkinter.Label(frame_top2, text="밴픽", font=font1, bg="black", foreground="white",anchor='center')
+        label_top.place(relx='0.42',rely='0.25')
 
 
         frame_blueTeam_width = 350;
@@ -166,12 +167,18 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_member_height = (frame_blueTeam_height - 40)/5
 
         frame_blueTeamMember = []
- 
+        label_blueTeamMember = []
+        label_redTeamMember = []
 
         for i in range(5):
             frame_blueTeamMember.append(0)
             frame_blueTeamMember[i] = tkinter.LabelFrame(frame_blueTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#7676EE", bd=1)
             frame_blueTeamMember[i].place(x=0, y=50+frame_member_height*i)
+            label_blueTeamMember.append(0)
+            label_blueTeamMember[i] = tkinter.Label(frame_blueTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#7676EE", bd=0)
+            label_blueTeamMember[i].pack()
+            label_blueTeamMember[i].bind('<Button-1>',paste_image)
+
 
         frame_redTeamMember = []
 
@@ -179,6 +186,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
             frame_redTeamMember.append(0)
             frame_redTeamMember[i] = tkinter.LabelFrame(frame_redTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#EE7676", bd=1)
             frame_redTeamMember[i].place(x=0, y=50+frame_member_height*i)
+            label_redTeamMember.append(0)
+            label_redTeamMember[i] = tkinter.Label(frame_redTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#EE7676", bd=0)
+            label_redTeamMember[i].pack()
+            label_redTeamMember[i].bind('<Button-1>',paste_image)
 
         def blue_combo_select(event):
             selected = blue_combobox.get()  # 콤보박스에서 선택한 값 가져오기
