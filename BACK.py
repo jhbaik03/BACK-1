@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 import pymysql
 
 # STEP 2: MySQL Connection 연결
-con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+con = pymysql.connect(host='192.168.219.101', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -34,7 +34,15 @@ window_height = 720
 class BackBanpickAnalyzer(tkinter.Tk):
     def __init__(self):
         super().__init__()
+        self.show_window1()
+
+
+    def show_window1(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
         self.title("BACK BANPICK ANALYZER")
+        self.geometry('400x400+100+50')
 
         # 상단 프레임 생성
         top_frame = tkinter.Frame(self, bg="#322756", width=400, height=50)
@@ -52,7 +60,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         right_frame = tkinter.Frame(self, bg='#322756', width=200, height=400)
 
         # 우 프레임에 버튼 배치
-        right_button = tkinter.Button(right_frame, text='ANALYZING TOOL', font=('Arial', 14), bg='#322756')
+        right_button = tkinter.Button(right_frame, text='ANALYZING TOOL', font=('Arial', 14), bg='#322756',command=self.show_window3)
         right_button.place(relx=0.5, rely=0.5, anchor='center')
 
         # 우 프레임을 윈도우 오른쪽에 위치시킴
@@ -61,8 +69,6 @@ class BackBanpickAnalyzer(tkinter.Tk):
         # 상단 라벨 생성
         top_label = tkinter.Label(top_frame, text='BACK LCK ANALYZER', font=('Arial', 16, 'bold'), bg='#322756', fg='white')
         top_label.pack(side='top', fill='x')
-
-
 
     def show_window2(self):
         # Clear window 1 widgets
@@ -109,10 +115,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         for i in range(5):
             frame_top1.append(0)
-            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = frame_top_height, relief="solid", bg="blue",bd='1')
+            frame_top1[i] = tkinter.Frame(self, width = int(frame_top_width/5), height = int(frame_top_height), relief="solid", bg="blue",bd='1')
             frame_top1[i].place(x=frame_top_width/5*i,y=0)
             label_top1.append(0)
-            label_top1[i] = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5),height=frame_top_height)
+            label_top1[i] = tkinter.Label(frame_top1[i],bg="blue",anchor="center",width = int(frame_top_width/5),height=int(frame_top_height))
             label_top1[i].pack()
             label_top1[i].bind('<Button-1>',paste_image)
 
@@ -132,7 +138,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_top3[i].pack()
             label_top3[i].bind('<Button-1>',paste_image)
 
-
+        label_top=tkinter.Button(frame_top2, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window1)
+        label_top.place(relx='0.41',rely='0.12')
 
 
         frame_blueTeam_width = 350;
@@ -144,6 +151,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         frame_blueTeam = tkinter.Frame(self, width = frame_blueTeam_width, height = frame_blueTeam_height, relief="solid", bg="blue")
         frame_blueTeam.place(x=0,y=frame_top_height)
+        button_blueteam = tkinter.Button(frame_blueTeam,width=frame_blueTeam_width,height=frame_blueTeam_height,text='승리',bg='blue')
+        button_blueteam.pack(side="right")
         blue_combobox=ttk.Combobox(frame_blueTeam, height=10, values=("T1","Gen"), font="6",state='readonly')
         blue_combobox.pack()
         blue_combobox.set("Select Team")
@@ -156,6 +165,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         frame_redTeam = tkinter.Frame(self, width = frame_redTeam_width, height = frame_redTeam_height, relief="solid", bg="red")
         frame_redTeam.place(x=frame_blueTeam_width + frame_center_width, y=frame_top_height)
+        button_redteam = tkinter.Button(frame_redTeam,width=frame_redTeam_width,height=frame_redTeam_height,bg='red')
+        button_redteam.pack(side='right')
         red_combobox=ttk.Combobox(frame_redTeam, height=10, values=("T1","Gen"), font="6",state='readonly')
         red_combobox.pack()
         red_combobox.set("Select Team")
@@ -166,12 +177,18 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_member_height = (frame_blueTeam_height - 40)/5
 
         frame_blueTeamMember = []
- 
+        label_blueTeamMember = []
+        label_redTeamMember = []
 
         for i in range(5):
             frame_blueTeamMember.append(0)
             frame_blueTeamMember[i] = tkinter.LabelFrame(frame_blueTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#7676EE", bd=1)
             frame_blueTeamMember[i].place(x=0, y=50+frame_member_height*i)
+            label_blueTeamMember.append(0)
+            label_blueTeamMember[i] = tkinter.Label(frame_blueTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#7676EE", bd=0)
+            label_blueTeamMember[i].pack()
+            label_blueTeamMember[i].bind('<Button-1>',paste_image)
+
 
         frame_redTeamMember = []
 
@@ -179,6 +196,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
             frame_redTeamMember.append(0)
             frame_redTeamMember[i] = tkinter.LabelFrame(frame_redTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#EE7676", bd=1)
             frame_redTeamMember[i].place(x=0, y=50+frame_member_height*i)
+            label_redTeamMember.append(0)
+            label_redTeamMember[i] = tkinter.Label(frame_redTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#EE7676", bd=0)
+            label_redTeamMember[i].pack()
+            label_redTeamMember[i].bind('<Button-1>',paste_image)
 
         def blue_combo_select(event):
             selected = blue_combobox.get()  # 콤보박스에서 선택한 값 가져오기
@@ -330,8 +351,25 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
 
 
+
 # 검색 버튼 바인딩
         text_search.bind("<Return>", lambda event: search())
+
+    def show_window3(self):
+        # Clear window 1 widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        font1=tkinter.font.Font(family="맑은 고딕", size=20)
+        font2=tkinter.font.Font(family="맑은 고딕", size=10)
+        
+        self.title("픽창")
+        self.geometry("{}x{}+100+50".format(window_width, window_height))
+        self.resizable(False, False)
+
+        label_top=tkinter.Button(self, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window1)
+        label_top.place(relx='0.41',rely='0.12')
+
 
 if __name__ == '__main__':
     app = BackBanpickAnalyzer()
