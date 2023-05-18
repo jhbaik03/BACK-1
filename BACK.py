@@ -363,13 +363,130 @@ class BackBanpickAnalyzer(tkinter.Tk):
         font1=tkinter.font.Font(family="맑은 고딕", size=20)
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
         
-        self.title("픽창")
+        self.title("ANALYZING TOOL")
+        self.geometry("{}x{}+100+50".format(400, 400))
+        self.resizable(False, False)
+
+ # 상단 프레임 생성
+        analyize_top = tkinter.Frame(self, bg="#322756", width=400, height=50)
+        analyize_top.pack(side="top", fill='both')
+
+        # 좌 프레임 생성
+        analyize_left = tkinter.Frame(self, bg='#322756', width=200, height=400, bd=3)
+        analyize_left.pack(side='left')
+
+        # 좌 프레임에 버튼 배치
+        analyize_leftb = tkinter.Button(analyize_left, text='Champion', font=('Arial', 14), bg='#322756',command=self.show_window4)
+        analyize_leftb.place(relx=0.5, rely=0.5, anchor='center')
+
+        # 우 프레임 생성
+        analyize_right = tkinter.Frame(self, bg='#322756', width=200, height=400)
+
+        # 우 프레임에 버튼 배치
+        analyize_rightb = tkinter.Button(analyize_right, text='Player', font=('Arial', 14), bg='#322756',command=self.show_window5)
+        analyize_rightb.place(relx=0.5, rely=0.5, anchor='center')
+
+        # 우 프레임을 윈도우 오른쪽에 위치시킴
+        analyize_right.pack(side='right')
+
+        label_top=tkinter.Button(analyize_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window1)
+        label_top.pack(side='top',fill='x')
+
+    def show_window4(self):
+        # Clear window 1 widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        font1=tkinter.font.Font(family="맑은 고딕", size=20)
+        font2=tkinter.font.Font(family="맑은 고딕", size=10)
+        
+        self.title("ANALYZING TOOL")
         self.geometry("{}x{}+100+50".format(window_width, window_height))
         self.resizable(False, False)
 
-        label_top=tkinter.Button(self, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window1)
-        label_top.place(relx='0.41',rely='0.12')
+        champ_top = tkinter.Frame(self, width= window_width, height = 100,bg='blue')
+        champ_top.pack(side="top")
 
+        champ_main = tkinter.Frame(self, width=window_width, height=620, bg='red')
+        champ_main.pack(side="bottom")
+        
+        label_champ=tkinter.Button(champ_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window3)
+        label_champ.place(relx=0.8, rely=0.23)
+
+        champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'])
+        champ_treeview.pack(ipadx=40)
+
+        champ_treeview.column('#0',width=200)
+        champ_treeview.heading("#0",text="champ")
+
+        champ_treeview.column('#1',width=200)
+        champ_treeview.heading("#1",text="W.R")
+
+        champ_treeview.column('#2',width=200)
+        champ_treeview.heading("#2",text="B.R")
+
+        champ_treeview.column('#3',width=200)
+        champ_treeview.heading("#3",text="P.R")
+
+        champ_treeview.column('#4',width=200)
+        champ_treeview.heading("#4",text="K/D/A")
+
+        champ_treeview.column('#5',width=280)
+        champ_treeview.heading("#5",text="SIDE Preference")
+
+    def show_window5(self):
+        # Clear window 1 widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        font1=tkinter.font.Font(family="맑은 고딕", size=20)
+        font2=tkinter.font.Font(family="맑은 고딕", size=10)
+        
+        self.title("ANALYZING TOOL")
+        self.geometry("{}x{}+100+50".format(window_width, window_height))
+        self.resizable(False, False)
+
+        player_top = tkinter.Frame(self, width= window_width, height = 100,bg='blue')
+        player_top.pack(side="top")
+
+        player_main = tkinter.Frame(self, width=window_width, height=620, bg='red')
+        player_main.pack(side="bottom")
+        
+        label_player=tkinter.Button(player_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window3)
+        label_player.place(relx=0.8, rely=0.23)
+
+        player_treeview = ttk.Treeview(player_main, columns=["TEAM","TOP",'JGL','MID','ADC','SPT'],displaycolumns=["TEAM","TOP",'JGL','MID','ADC','SPT'])
+        player_treeview.pack()
+
+        player_treeview.column('#0',width=80)
+        player_treeview.heading("#0",text="TEAM")
+
+        player_treeview.column('#1',width=240)
+        player_treeview.heading("#1",text="TOP")
+
+        player_treeview.column('#2',width=240)
+        player_treeview.heading("#2",text="JGL")
+
+        player_treeview.column('#3',width=240)
+        player_treeview.heading("#3",text="MID")
+
+        player_treeview.column('#4',width=240)
+        player_treeview.heading("#4",text="ADC")
+
+        player_treeview.column('#5',width=240)
+        player_treeview.heading("#5",text="SPT")
+
+    def show_window6(self):
+        # Clear window 1 widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        font1=tkinter.font.Font(family="맑은 고딕", size=20)
+        font2=tkinter.font.Font(family="맑은 고딕", size=10)
+        
+        self.title("ANALYZING TOOL")
+        self.geometry("{}x{}+100+50".format(window_width, window_height))
+        self.resizable(False, False)
 
 if __name__ == '__main__':
     app = BackBanpickAnalyzer()
