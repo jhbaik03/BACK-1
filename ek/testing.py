@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 import pymysql
 
 # STEP 2: MySQL Connection 연결
-con = pymysql.connect(host='192.168.219.101', user='back', password='0000',
+con = pymysql.connect(host='192.168.0.178', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -25,7 +25,7 @@ champion_data = sorted(champion_data, key=lambda x:x[1])
 con.close()
 
 
-con = pymysql.connect(host='192.168.219.101', user='back', password='0000',
+con = pymysql.connect(host='192.168.0.178', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -181,8 +181,9 @@ class BackBanpickAnalyzer(tkinter.Tk):
         height_frame_blueTeam = height_window_banPick - height_frame_top
 
         frame_blueTeam = tkinter.Frame(self, width = width_frame_blueTeam, height = height_frame_blueTeam, relief="solid", bg="blue")
-        frame_blueTeam.place(x=0,y=height_frame_top)
+        frame_blueTeam.place(x=0, y=height_frame_top)
 
+        #승리팀을 정하는 버튼 - 버튼을 누르면 해당 팀이 승리팀이 되고, 해당 게임의 정보가 데이터베이스에 저장된다.
         button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue')
         button_blueteam.pack(side="left")
 
@@ -191,35 +192,40 @@ class BackBanpickAnalyzer(tkinter.Tk):
         combobox_blueteam.set("Select Team")
         combobox_blueteam.place(x=10, y=10)
 
-        def blue_combo_select(event):
-            selected = combobox_blueteam.get()  # 콤보박스에서 선택한 값 가져오기
+        #블루팀 콤보박스에서 임의의 팀을 선택시 해당 팀의 팀원 이름을 labelframe에 출력시키는 함수
+        def blueteam_combobox_select(event):
+            selected_team = combobox_blueteam.get()  # 콤보박스에서 선택한 값 가져오기
+            
+            #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
-                frame_blueTeamMember[i].config(text=team_dic[selected][i])
-        
-        combobox_blueteam.bind("<<ComboboxSelected>>", blue_combo_select)
+                frame_blueTeamMember[i].config(text=team_dic[selected_team][i])
 
-        #Center Frame(champion list Frame)
-        frame_center_width = width_window_banPick - width_frame_blueTeam*2;
-        frame_center_height = height_window_banPick - height_frame_top
+        combobox_blueteam.bind("<<ComboboxSelected>>", blueteam_combobox_select)
 
-        frame_center = tkinter.Frame(self, width = frame_center_width, height = height_frame_blueTeam, relief="solid", bg="white")
-        frame_center.place(x=width_frame_blueTeam, y=height_frame_top)
+        width_frame_member = 350;
+        height_frame_member = (height_frame_blueTeam - 40)/5
 
-        frame_center_search = tkinter.Frame(frame_center, width = frame_center_width-20, height= 30, relief="solid", bg="#111111", bd=1)
-        frame_center_search.place(anchor="center", x=frame_center_width/2, y=25)
+        #팀 멤버 5명을 위한 frame, label
+        frame_blueTeamMember = []
+        label_blueTeamMember = []
 
-        text_search = tkinter.Text(frame_center_search, width=20, height=1, padx=1, pady=1, fg="#000000", bg="#EEEEEE", font="3")
-        text_search.place(x=0,y=0)
+        #5개의 label, frame 위치 설정
+        for i in range(5):
+            frame_blueTeamMember.append(0)
+            frame_blueTeamMember[i] = tkinter.LabelFrame(frame_blueTeam, width = width_frame_member, height = height_frame_member, relief="solid", bg="#7676EE", bd=1)
+            frame_blueTeamMember[i].place(x=0, y=50+height_frame_member*i)
 
-        frame_center_champion = tkinter.Frame(frame_center, width = frame_center_width-20, height= frame_center_height-60, relief="solid", bg="#222222", bd=1)
-        frame_center_champion.place(anchor="n", x=frame_center_width/2, y=50)
+            label_blueTeamMember.append(0)
+            label_blueTeamMember[i] = tkinter.Label(frame_blueTeamMember[i], width = width_frame_member,height=int(height_frame_member), relief="solid", bg="#7676EE", bd=0)
+            label_blueTeamMember[i].pack()
+            label_blueTeamMember[i].bind('<Button-1>', paste_image)
 
         #redTeam Pick Frame
         width_frame_redTeam = 350;
         height_frame_redTeam = height_window_banPick - height_frame_top
 
         frame_redTeam = tkinter.Frame(self, width = width_frame_redTeam, height = height_frame_redTeam, relief="solid", bg="red")
-        frame_redTeam.place(x=width_frame_blueTeam + frame_center_width, y=height_frame_top)
+        frame_redTeam.place(x=width_window - width_frame_redTeam, y=height_frame_top)
 
         button_redteam = tkinter.Button(frame_redTeam,width=width_frame_redTeam,height=height_frame_redTeam,bg='red')
         button_redteam.pack(side='right')
@@ -229,72 +235,113 @@ class BackBanpickAnalyzer(tkinter.Tk):
         combobox_redteam.set("Select Team")
         combobox_redteam.place(x=10, y=10)
         
-        def red_combo_select(event):
+        #레드팀 콤보박스에서 임의의 팀을 선택시 해당 팀의 팀원 이름을 labelframe에 출력시키는 함수
+        def redteam_combobox_select(event):
             selected = combobox_redteam.get()  # 콤보박스에서 선택한 값 가져오기
+            
+            #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
                 frame_redTeamMember[i].config(text=team_dic[selected][i])
-        combobox_redteam.bind("<<ComboboxSelected>>", red_combo_select)
+        combobox_redteam.bind("<<ComboboxSelected>>", redteam_combobox_select)
 
-
-        frame_member_width = 350;
-        frame_member_height = (height_frame_blueTeam - 40)/5
-
-        frame_blueTeamMember = []
-        label_blueTeamMember = []
-        for i in range(5):
-            frame_blueTeamMember.append(0)
-            frame_blueTeamMember[i] = tkinter.LabelFrame(frame_blueTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#7676EE", bd=1)
-            frame_blueTeamMember[i].place(x=0, y=50+frame_member_height*i)
-
-            label_blueTeamMember.append(0)
-            label_blueTeamMember[i] = tkinter.Label(frame_blueTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#7676EE", bd=0)
-            label_blueTeamMember[i].pack()
-            label_blueTeamMember[i].bind('<Button-1>',paste_image)
-
+        #팀 멤버 5명을 위한 frame, label
         label_redTeamMember = []
         frame_redTeamMember = []
+
+        #5개의 label, frame 위치 설정
         for i in range(5):
             frame_redTeamMember.append(0)
-            frame_redTeamMember[i] = tkinter.LabelFrame(frame_redTeam, width = frame_member_width, height = frame_member_height, relief="solid", bg="#EE7676", bd=1)
-            frame_redTeamMember[i].place(x=0, y=50+frame_member_height*i)
+            frame_redTeamMember[i] = tkinter.LabelFrame(frame_redTeam, width = width_frame_member, height = height_frame_member, relief="solid", bg="#EE7676", bd=1)
+            frame_redTeamMember[i].place(x=0, y=50+height_frame_member*i)
 
             label_redTeamMember.append(0)
-            label_redTeamMember[i] = tkinter.Label(frame_redTeamMember[i], width = frame_member_width,height=int(frame_member_height), relief="solid", bg="#EE7676", bd=0)
+            label_redTeamMember[i] = tkinter.Label(frame_redTeamMember[i], width = width_frame_member,height=int(height_frame_member), relief="solid", bg="#EE7676", bd=0)
             label_redTeamMember[i].pack()
             label_redTeamMember[i].bind('<Button-1>',paste_image)
 
+        
+        #Center Frame(champion list Frame)
+        width_frame_center = width_window_banPick - width_frame_blueTeam*2;
+        height_frame_center = height_window_banPick - height_frame_top
 
-#######챔피언 고르는 Frame 설정(scrollbar)
-# 스크롤바 생성
-        scrollbar_champion = tkinter.Scrollbar(frame_center_champion, orient='vertical')
+        frame_center = tkinter.Frame(self, width = width_frame_center, height = height_frame_blueTeam, relief="solid", bg="white")
+        frame_center.place(x=width_frame_blueTeam, y=height_frame_top)
+
+        frame_champion_search = tkinter.Frame(frame_center, width = width_frame_center-20, height= 30, relief="solid", bg="#111111", bd=1)
+        frame_champion_search.place(anchor="center", x=width_frame_center/2, y=25)
+
+        text_champion_search = tkinter.Text(frame_champion_search, width=20, height=1, padx=1, pady=1, fg="#000000", bg="#EEEEEE", font="3")
+        text_champion_search.place(x=0,y=0)
+
+        def search():
+            # Text 위젯에서 입력된 값 가져오기
+            text = text_champion_search.get("1.0", "end-1c")
+            text_champion_search.delete("1.0", "end")
+
+            # 입력값을 포함하는 Frame만 저장하기
+            filtered_champs = []
+            for i in champion_data:
+                if text in i[1]:
+                    filtered_champs.append(i)
+
+            # 모든 Frame을 숨기기
+            for champion in frame_champions:
+                del champion
+            for frame in frame_champions_line:
+                frame.destroy()
+            frame_champions_line.clear()
+
+            # 새로운 순서로 Frame을 보여주기
+            line_num=-1
+            for i in range(len(filtered_champs)):
+                if i%6==0:
+                    frame_champions_line.append(0)
+                    line_num = line_num+1
+                    frame_champions_line[line_num] = tkinter.Frame(frame_scrollable, width = width_frame_champions*6+5*7, height= height_frame_champions+15, bg="gray", bd=5)
+                    frame_champions_line[line_num].pack()
+
+                champion = Champion(frame_champions_line[line_num], filtered_champs[i][1], "lck analyzing tool/champ/"+ filtered_champs[i][3] +".png")
+                champion.frame_champion.place(x=(i % 6)*width_frame_champions + (i % 6)*5, y=0)
+                frame_champions.append(champion)
+
+        # 검색 버튼 바인딩
+        text_champion_search.bind("<Return>", lambda event: search())
+
+        #######챔피언 고르는 Frame 설정(scrollbar)
+        frame_champion_list = tkinter.Frame(frame_center, width = width_frame_center-20, height= height_frame_center-60, relief="solid", bg="#222222", bd=1)
+        frame_champion_list.place(anchor="n", x=width_frame_center/2, y=50)
+
+        # 스크롤바 생성
+        scrollbar_champion = tkinter.Scrollbar(frame_champion_list, orient='vertical')
         scrollbar_champion.pack(side='right', fill='y')
 
-# 스크롤 가능한 Canvas 위젯 생성
-        canvas_champions = tkinter.Canvas(frame_center_champion, yscrollcommand=scrollbar_champion.set, width=frame_center_width-40, height=frame_center_height-60, highlightthickness=0)
+        # 스크롤 가능한 Canvas 위젯 생성
+        canvas_champions = tkinter.Canvas(frame_champion_list, yscrollcommand=scrollbar_champion.set, width=width_frame_center-40, height=height_frame_center-60, highlightthickness=0)
         canvas_champions.pack(side='left', fill='both', expand=True)
 
-# 스크롤바와 Canvas 위젯 연결
+        # 스크롤바와 Canvas 위젯 연결
         scrollbar_champion.config(command=canvas_champions.yview)
 
-# 스크롤 가능한 영역으로 사용할 Frame 생성
-        scrollable_frame = tkinter.Frame(canvas_champions)
+        # 스크롤 가능한 영역으로 사용할 Frame 생성
+        frame_scrollable = tkinter.Frame(canvas_champions)
 
-# Frame에 내용 삽입
+        # Frame에 내용 삽입
+        width_frame_champions= (width_frame_center-40-35)/6
+        height_frame_champions= width_frame_champions
+
         frame_champions = []
         frame_champions_line = []
-        frame_champions_width= (frame_center_width-40-35)/6
-        frame_champions_height= frame_champions_width
 
         class Champion:
             def __init__(self, parent, champion_name, image_path):
                 self.image = Image.open(image_path)
-                self.image_width = int(frame_champions_width)
-                self.image_height = self.image_width
+                self.width_image = int(width_frame_champions)
+                self.height_image = self.width_image
 
-                self.image_resize = self.image.resize((self.image_width, self.image_height), Image.LANCZOS)
+                self.image_resize = self.image.resize((self.width_image, self.height_image), Image.LANCZOS)
                 self.img = ImageTk.PhotoImage(self.image_resize)
 
-                self.frame_champion = tkinter.LabelFrame(parent, width=frame_champions_width, height=frame_champions_height+15, 
+                self.frame_champion = tkinter.LabelFrame(parent, width=width_frame_champions, height=height_frame_champions+15, 
                                                          relief="solid", bg="white", highlightthickness=0, text=champion_name,
                                                          labelanchor="s", padx=0, pady=0, border=0)
                 
@@ -320,57 +367,20 @@ class BackBanpickAnalyzer(tkinter.Tk):
             if i % 6 == 0:
                 frame_champions_line.append(0)
                 line_num = line_num + 1
-                frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width=frame_champions_width*6+5*7, height=frame_champions_height+15, bg="gray", bd=5)
+                frame_champions_line[line_num] = tkinter.Frame(frame_scrollable, width=width_frame_champions*6+5*7, height=height_frame_champions+15, bg="gray", bd=5)
                 frame_champions_line[line_num].pack()
 
             champion = Champion(frame_champions_line[line_num], champion_data[i][1], "lck analyzing tool/champ/"+ champion_data[i][3] +".png")
-            champion.frame_champion.place(x=(i % 6)*frame_champions_width + (i % 6)*5, y=0)
+            champion.frame_champion.place(x=(i % 6)*width_frame_champions + (i % 6)*5, y=0)
             frame_champions.append(champion)
         
 
         # Canvas 위젯에 Frame 삽입
-        canvas_champions.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas_champions.create_window((0, 0), window=frame_scrollable, anchor='nw')
 
         # 스크롤바에도 Canvas 위젯 연결
-        scrollable_frame.bind('<Configure>', lambda e: canvas_champions.configure(scrollregion=canvas_champions.bbox('all')))
+        frame_scrollable.bind('<Configure>', lambda e: canvas_champions.configure(scrollregion=canvas_champions.bbox('all')))
 
-        def search():
-            # Text 위젯에서 입력된 값 가져오기
-            text = text_search.get("1.0", "end-1c")
-            text_search.delete("1.0", "end")
-
-            # 입력값을 포함하는 Frame만 저장하기
-            filtered_champs = []
-
-            for i in champion_data:
-                if text in i[1]:
-                    filtered_champs.append(i)
-
-            print(filtered_champs)  
-
-            # 모든 Frame을 숨기기
-            for champion in frame_champions:
-                del champion
-            for frame in frame_champions_line:
-                frame.destroy()
-            
-            frame_champions_line.clear()
-
-            # 새로운 순서로 Frame을 보여주기
-            line_num=-1
-            for i in range(len(filtered_champs)):
-                if i%6==0:
-                    frame_champions_line.append(0)
-                    line_num = line_num+1
-                    frame_champions_line[line_num] = tkinter.Frame(scrollable_frame, width = frame_champions_width*6+5*7, height= frame_champions_height+15, bg="gray", bd=5)
-                    frame_champions_line[line_num].pack()
-
-                champion = Champion(frame_champions_line[line_num], filtered_champs[i][1], "lck analyzing tool/champ/"+ filtered_champs[i][3] +".png")
-                champion.frame_champion.place(x=(i % 6)*frame_champions_width + (i % 6)*5, y=0)
-                frame_champions.append(champion)
-
-        # 검색 버튼 바인딩
-        text_search.bind("<Return>", lambda event: search())
 
     def show_window_analyze(self):
         # Clear window 1 widgets
@@ -384,7 +394,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         self.geometry("{}x{}+100+50".format(400, 400))
         self.resizable(False, False)
 
- # 상단 프레임 생성
+        # 상단 프레임 생성
         analyize_top = tkinter.Frame(self, bg="#322756", width=400, height=50)
         analyize_top.pack(side="top", fill='both')
 
@@ -393,14 +403,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
         analyize_left.pack(side='left')
 
         # 좌 프레임에 버튼 배치
-        analyize_leftb = tkinter.Button(analyize_left, text='Champion', font=('Arial', 14), bg='#322756',command=self.show_window4)
+        analyize_leftb = tkinter.Button(analyize_left, text='Champion', font=('Arial', 14), bg='#322756',command=self.show_window_analyze_champion)
         analyize_leftb.place(relx=0.5, rely=0.5, anchor='center')
 
         # 우 프레임 생성
         analyize_right = tkinter.Frame(self, bg='#322756', width=200, height=400)
 
         # 우 프레임에 버튼 배치
-        analyize_rightb = tkinter.Button(analyize_right, text='Player', font=('Arial', 14), bg='#322756',command=self.show_window5)
+        analyize_rightb = tkinter.Button(analyize_right, text='Player', font=('Arial', 14), bg='#322756', command=self.show_window_player)
         analyize_rightb.place(relx=0.5, rely=0.5, anchor='center')
 
         # 우 프레임을 윈도우 오른쪽에 위치시킴
@@ -409,7 +419,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         label_top=tkinter.Button(analyize_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_main)
         label_top.pack(side='top',fill='x')
 
-    def show_window4(self):
+    def show_window_analyze_champion(self):
         # Clear window 1 widgets
         for widget in self.winfo_children():
             widget.destroy()
@@ -451,7 +461,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         champ_treeview.column('#5',width=280)
         champ_treeview.heading("#5",text="SIDE Preference")
 
-    def show_window5(self):
+    def show_window_player(self):
         # Clear window 1 widgets
         for widget in self.winfo_children():
             widget.destroy()
