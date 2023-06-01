@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 import pymysql
 
 # STEP 2: MySQL Connection 연결
-con = pymysql.connect(host='192.168.0.178', user='back', password='0000',
+con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -25,7 +25,7 @@ champion_data = sorted(champion_data, key=lambda x:x[1])
 con.close()
 
 
-con = pymysql.connect(host='192.168.0.178', user='back', password='0000',
+con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -103,26 +103,193 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
     #픽밴화면 출력
     def show_window_banPick(self):
+        #경기 정보 저장, 중복 불가능하도록 설정
+        class Match_info:
+            def __init__(self):
+                self.blueteam_Name = None
+                #탑, 정글, 미드, 원딜, 서폿순
+                self.blueteam_Pick = [None] * 5
+                self.blueteam_Ban = [None] * 5
+            
+                self.redteam_Name = None
+                #탑, 정글, 미드, 원딜, 서폿순
+                self.redteam_Pick = [None] * 5
+                self.redteam_Ban = [None] * 5
+
+                self.winnerTeam = None
+                    
+            #팀 이름 정보 설정
+            def set_blueteam_Name(self, team_Name):
+                self.blueteam_Name = team_Name
+                self.printInfo()
+            def set_redteam_Name(self, team_Name):
+                self.redteam_Name = team_Name
+                self.printInfo()
+        
+            #승리 팀 정보 설정
+            def set_winnerTeam_Name(self, team_Name):
+                self.winnerTeam = team_Name
+                self.printInfo()
+
+            #각 포지션 별 챔피언 정보 설정
+            def set_blueteam_Pick(self, champion_Name, position):
+                (type, location) = self.check_exist(champion_Name)
+                if type!=False:
+                    self.remove(type, location)
+
+                self.blueteam_Pick[position] = champion_Name
+                self.printInfo()
+                
+            def set_blueteam_Ban(self, champion_Name, position):
+                (type, location) = self.check_exist(champion_Name)
+                if type!=False:
+                    self.remove(type, location)
+
+                self.blueteam_Ban[position] = champion_Name
+                self.printInfo()
+
+            def set_redteam_Pick(self, champion_Name, position):
+                (type, location) = self.check_exist(champion_Name)
+                if type!=False:
+                    self.remove(type, location)
+
+                self.redteam_Pick[position] = champion_Name
+                self.printInfo()
+
+            def set_redteam_Ban(self, champion_Name, position):
+                (type, location) = self.check_exist(champion_Name)
+                if type!=False:
+                    self.remove(type, location)
+
+                self.redteam_Ban[position] = champion_Name
+                self.printInfo()
+
+            #이미 존재하는 챔피언을 삭제하는 함수
+            def remove(self, type, location):
+                if type=="blueTeam_ban":
+                    self.blueteam_Ban[location] = None
+                    label = label_blueBan[location]
+                    label.image=''
+                    label.config(image='')
+                    
+                elif type=="blueTeam_pick":
+                    self.blueteam_Pick[location] = None
+                    label = label_blueTeamMember[location]
+                    label.image=''
+                    label.config(image='')
+
+                elif type=="redTeam_ban":
+                    self.redteam_Ban[location] = None
+                    label = label_redBan[location]
+                    label.image=''
+                    label.config(image='')
+                    
+                elif type=="redTeam_pick":
+                    self.redteam_Pick[location] = None
+                    label = label_redTeamMember[location]
+                    label.image=''
+                    label.config(image='')
+
+
+            #챔피언이 이미 존재하는지 확인해주는 함수
+            def check_exist(self, champion_name):
+                if champion_name in self.blueteam_Ban:
+                    return ("blueTeam_ban", self.blueteam_Ban.index(champion_name))
+                elif champion_name in self.blueteam_Pick:
+                    return ("blueTeam_pick", self.blueteam_Pick.index(champion_name))
+                elif champion_name in self.redteam_Ban:
+                    return ("redTeam_ban", self.redteam_Ban.index(champion_name))
+                elif champion_name in self.redteam_Pick:
+                    return ("redTeam_pick", self.redteam_Pick.index(champion_name))
+
+                return(False, False)
+
+            def checkAllSelected(self):
+                if None in self.blueteam_Pick:
+                    return False
+                elif None in self.blueteam_Ban:
+                    return False
+                elif None in self.redteam_Pick:
+                    return False
+                elif None in self.redteam_Ban:
+                    return False
+                elif self.blueteam_Name is None:
+                    return False
+                elif self.redteam_Name is None:
+                    return False
+                elif self.winnerTeam is None:
+                    return False
+
+                return True 
+
+            def printInfo(self):
+                print("blue : ", self.blueteam_Name)
+                for i in range(5):
+                    print(str(i), " : ", self.blueteam_Pick[i], end="  ")
+                print()
+                
+                print("blueTeam Ban : ", end=" ")
+                for i in range(5):
+                    print(self.blueteam_Ban[i], end="   ")
+        
+                print()
+                print()
+                print("red : ", self.redteam_Name)
+                for i in range(5):
+                    print(str(i), " : ", self.redteam_Pick[i], end="   ")
+                print()
+
+                print("redTeam Ban : ", end=" ")
+                for i in range(5):
+                    print(self.redteam_Ban[i], end="   ")
+                print()
+
+        #현재 경기 정보 저장 객체 생성
+        now_match = Match_info()
+
+        global name_selected_champion
+        name_selected_champion = None
+        global image_selected_champion
         image_selected_champion = None
         #챔피언 리스트에서 클릭시 해당 챔피언 정보 저장하기
         def champion_click(event):
+            global name_selected_champion
             global image_selected_champion
 
             # 선택된 챔피언 라벨의 이미지 정보 가져오기
             widget_selected_champion = event.widget
+            # print(widget_selected_champion)
+            name_selected_champion = widget_selected_champion.cget('text')
             image_selected_champion = widget_selected_champion.cget('image')
-            if image_selected_champion is not None:
-                print("copy")
+            if image_selected_champion is not None and name_selected_champion is not None:
+                # print("copy")
+                print()
 
         # 클릭한 프레임에 이미지 붙여넣기
-        def paste_image(event):
+        def paste_image(event, type, location):
+            global name_selected_champion
             global image_selected_champion
-
             # 선택한 선수의 픽을 선택한 이미지로 설정하기
             if image_selected_champion is not None:
+                #선택한 라벨에따라 현재 경기 정보 설정
+                if type == "blueTeam_ban":
+                    now_match.set_blueteam_Ban(name_selected_champion, location)
+                elif type == "blueTeam_pick":
+                    now_match.set_blueteam_Pick(name_selected_champion, location)
+                elif type == "redTeam_ban":
+                    now_match.set_redteam_Ban(name_selected_champion, location)
+                elif type == "redTeam_pick":
+                    now_match.set_redteam_Pick(name_selected_champion, location)
+                    
                 event.widget.configure(image=image_selected_champion)
+                image_selected_champion = None
+
             elif image_selected_champion is None:
-                print("NONE")
+                event.widget.image=''
+                event.widget.config(image='')
+                now_match.remove(type, location)
+            
+
 
         #다른 화면 전부 삭제
         for widget in self.winfo_children():
@@ -153,7 +320,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_blueBan.append(0)
             label_blueBan[i] = tkinter.Label(frame_blueBan[i], bg="blue", anchor="center", width = int(width_frame_top/5), height = height_frame_top)
             label_blueBan[i].pack()
-            label_blueBan[i].bind('<Button-1>',paste_image)
+            label_blueBan[i].bind('<Button-1>', lambda event, idx=i: paste_image(event, "blueTeam_ban", idx))
 
         #레드팀 밴 frame 생성
         frame_redBan = []
@@ -166,7 +333,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_redBan.append(0)
             label_redBan[i] = tkinter.Label(frame_redBan[i], bg="red", anchor="center",width = int(width_frame_top/5), height = height_frame_top)
             label_redBan[i].pack()
-            label_redBan[i].bind('<Button-1>',paste_image)
+            label_redBan[i].bind('<Button-1>', lambda event, idx=i: paste_image(event, "redTeam_ban", idx))
 
         #상단 프레임 설정
         frame_top_center = tkinter.Frame(self, width = width_frame_top, height = height_frame_top, relief="solid", bg="black") 
@@ -199,6 +366,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
             #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
                 frame_blueTeamMember[i].config(text=team_dic[selected_team][i])
+            
+            now_match.set_blueteam_Name(selected_team)
 
         combobox_blueteam.bind("<<ComboboxSelected>>", blueteam_combobox_select)
 
@@ -218,7 +387,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_blueTeamMember.append(0)
             label_blueTeamMember[i] = tkinter.Label(frame_blueTeamMember[i], width = width_frame_member,height=int(height_frame_member), relief="solid", bg="#7676EE", bd=0)
             label_blueTeamMember[i].pack()
-            label_blueTeamMember[i].bind('<Button-1>', paste_image)
+            label_blueTeamMember[i].bind('<Button-1>', lambda event, idx=i: paste_image(event, "blueTeam_pick", idx))
 
         #redTeam Pick Frame
         width_frame_redTeam = 350;
@@ -237,11 +406,13 @@ class BackBanpickAnalyzer(tkinter.Tk):
         
         #레드팀 콤보박스에서 임의의 팀을 선택시 해당 팀의 팀원 이름을 labelframe에 출력시키는 함수
         def redteam_combobox_select(event):
-            selected = combobox_redteam.get()  # 콤보박스에서 선택한 값 가져오기
+            selected_team = combobox_redteam.get()  # 콤보박스에서 선택한 값 가져오기
             
             #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
-                frame_redTeamMember[i].config(text=team_dic[selected][i])
+                frame_redTeamMember[i].config(text=team_dic[selected_team][i])
+            now_match.set_redteam_Name(selected_team)
+
         combobox_redteam.bind("<<ComboboxSelected>>", redteam_combobox_select)
 
         #팀 멤버 5명을 위한 frame, label
@@ -257,7 +428,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_redTeamMember.append(0)
             label_redTeamMember[i] = tkinter.Label(frame_redTeamMember[i], width = width_frame_member,height=int(height_frame_member), relief="solid", bg="#EE7676", bd=0)
             label_redTeamMember[i].pack()
-            label_redTeamMember[i].bind('<Button-1>',paste_image)
+            label_redTeamMember[i].bind('<Button-1>', lambda event, idx=i: paste_image(event, "redTeam_pick", idx))
 
         
         #Center Frame(champion list Frame)
@@ -347,7 +518,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 
                 self.frame_champion.bind("<Button-1>", champion_click)
                 
-                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text=champion_name, 
+                self.inframe = tkinter.Label(self.frame_champion, image=self.img, text=image_path.split('/')[-1].split('.')[0], 
                                              border=0, padx=0, pady=0)
                 self.inframe.bind("<Button-1>", champion_click)
                 self.inframe.place(x=0, y=0)
