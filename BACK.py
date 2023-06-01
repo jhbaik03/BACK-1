@@ -567,7 +567,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         font1=tkinter.font.Font(family="맑은 고딕", size=20)
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
-        
+        font3 = tkinter.font.Font(family="맑은 고딕", size=16)
+
         width_info=640
         height_info=120
         width_frame = int(width_window/4)
@@ -576,6 +577,29 @@ class BackBanpickAnalyzer(tkinter.Tk):
         self.geometry("{}x{}+100+50".format(width_window, height_window))
         self.resizable(False, False)
 
+        def update_bluelabel(event=None):
+            for i in range(5):
+                k_text = blue_kill[i].get()
+                d_text = blue_death[i].get()
+                a_text = blue_assist[i].get()
+                label_text = f"Kill: {k_text}\nDeath: {d_text}\nAssist: {a_text}"
+                label_blueteam[i].config(text=label_text)
+                print(label_blueteam[i].cget('text'))
+                blue_kill[i].delete(0, tkinter.END)
+                blue_death[i].delete(0, tkinter.END)
+                blue_assist[i].delete(0, tkinter.END)
+
+        def update_redlabel(event=None):
+            for i in range(5):
+                k_text = red_kill[i].get()
+                d_text = red_death[i].get()
+                a_text = red_assist[i].get()
+                label_text = f"Kill: {k_text}\nDeath: {d_text}\nAssist: {a_text}"
+                label_redteam[i].config(text=label_text)
+                print(label_redteam[i].cget('text'))
+                red_kill[i].delete(0, tkinter.END)
+                red_death[i].delete(0, tkinter.END)
+                red_assist[i].delete(0, tkinter.END)
         # 상단 프레임 생성
         info_top = tkinter.Frame(self, bg="#322756", width=400, height=50,bd='2')
         info_top.pack(side="top", fill='both')
@@ -589,6 +613,9 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_bluekda = []
         label_blueteam = []
         label_bluekda = []
+        blue_kill = []
+        blue_death = []
+        blue_assist = []
 
         for i in range(5):
             frame_blueinfo.append(tkinter.LabelFrame(info_left, width=int(width_window/2), height=int(height_info), relief="solid", bg="#EE7676", bd=1))
@@ -601,10 +628,19 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_blueteam[i].pack()
 
             frame_bluekda.append(tkinter.Frame(frame_blueinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="red", bd=1))
-            frame_bluekda[i].pack(side='right', fill='none')
+            frame_bluekda[i].pack(side='right', fill='y',expand=True)
 
-            label_bluekda.append(tkinter.Label(frame_bluekda[i],width=width_frame,height=int(height_info),relief="solid",bg='white',bd=0))
-            label_bluekda[i].pack()
+            blue_kill.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
+            blue_kill[i].bind("<Return>", update_bluelabel)
+            blue_kill[i].pack()
+
+            blue_death.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
+            blue_death[i].bind("<Return>", update_bluelabel)
+            blue_death[i].pack()
+
+            blue_assist.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
+            blue_assist[i].bind("<Return>", update_bluelabel)
+            blue_assist[i].pack()
 
 # 우 프레임 생성
         info_right = tkinter.Frame(self, bg='pink', width=width_window/2, bd=3)
@@ -617,6 +653,9 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_redkda = []
         label_redteam = []
         label_redkda = []
+        red_kill = []
+        red_death = []
+        red_assist = []
 
         for i in range(5):
             frame_redinfo.append(tkinter.LabelFrame(info_right, width=int(width_window/2), height=int(height_info), relief="solid", bg="#EE7676", bd=1))
@@ -629,10 +668,19 @@ class BackBanpickAnalyzer(tkinter.Tk):
             label_redteam[i].pack()
 
             frame_redkda.append(tkinter.Frame(frame_redinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="red", bd=1))
-            frame_redkda[i].pack(side='right', fill='none')
+            frame_redkda[i].pack(side='right', fill='y',expand=True)
 
-            label_redkda.append(tkinter.Label(frame_redkda[i],width=width_frame,height=int(height_info),relief="solid",bg='white',bd=0))
-            label_redkda[i].pack()
+            red_kill.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
+            red_kill[i].bind("<Return>", update_redlabel)
+            red_kill[i].pack()
+
+            red_death.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
+            red_death[i].bind("<Return>", update_redlabel)
+            red_death[i].pack()
+
+            red_assist.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
+            red_assist[i].bind("<Return>", update_redlabel)
+            red_assist[i].pack()
 
 
         button_home = tkinter.Button(info_top, text="HOME", font=font1, bg="black", foreground="white", anchor='center',command=self.show_window_main)
