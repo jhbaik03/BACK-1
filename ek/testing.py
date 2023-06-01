@@ -24,6 +24,8 @@ champion_data = sorted(champion_data, key=lambda x:x[1])
 # STEP 5: DB 연결 종료
 con.close()
 
+# treelist = [for a in champion_data[][3]]
+
 
 con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
@@ -716,7 +718,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         champ_top.pack(side="top")
 
         champ_main = tkinter.Frame(self, width=width_window, height=620, bg='red')
-        champ_main.pack(side="bottom")
+        champ_main.pack(side="top")
         
         label_champ=tkinter.Button(champ_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
         label_champ.place(relx=0.8, rely=0.23)
@@ -724,23 +726,30 @@ class BackBanpickAnalyzer(tkinter.Tk):
         champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'])
         champ_treeview.pack(ipadx=40)
 
-        champ_treeview.column('#0',width=200)
-        champ_treeview.heading("#0",text="champ")
+        champ_treeview.column('champ',width=200)
+        champ_treeview.heading("champ",text="champ")
 
-        champ_treeview.column('#1',width=200)
-        champ_treeview.heading("#1",text="W.R")
+        champ_treeview.column('W.R',width=200)
+        champ_treeview.heading("W.R",text="W.R")
 
-        champ_treeview.column('#2',width=200)
-        champ_treeview.heading("#2",text="B.R")
+        champ_treeview.column('B.R',width=200)
+        champ_treeview.heading("B.R",text="B.R")
 
-        champ_treeview.column('#3',width=200)
-        champ_treeview.heading("#3",text="P.R")
+        champ_treeview.column('P.R',width=200)
+        champ_treeview.heading("P.R",text="P.R")
 
-        champ_treeview.column('#4',width=200)
-        champ_treeview.heading("#4",text="K/D/A")
+        champ_treeview.column('K/D/A',width=200)
+        champ_treeview.heading("K/D/A",text="K/D/A")
 
-        champ_treeview.column('#5',width=280)
-        champ_treeview.heading("#5",text="SIDE Preference")
+        champ_treeview.column('SIDE Preference',width=280)
+        champ_treeview.heading("SIDE Preference",text="SIDE Preference")
+
+        champ_treeview["show"]="headings"
+        
+        treeview_data = [row[1] for row in champion_data]
+        
+        for i in range(len(treeview_data)):
+            champ_treeview.insert('', 'end', values=treeview_data[i])
 
     def show_window_player(self):
         # Clear window 1 widgets
