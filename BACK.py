@@ -364,9 +364,13 @@ class BackBanpickAnalyzer(tkinter.Tk):
             selected_team = combobox_blueteam.get()  # 콤보박스에서 선택한 값 가져오기
             
             #선택한 팀에 따라 팀원 labelframe에 이름 출력
+                        #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
                 frame_blueTeamMember[i].config(text=team_dic[selected_team][i])
-            
+            if combobox_redteam.get() == selected_team:
+                combobox_redteam.set('Select Team')
+                for i in range(5):
+                    frame_redTeamMember[i].config(text="")
             now_match.set_blueteam_Name(selected_team)
 
         combobox_blueteam.bind("<<ComboboxSelected>>", blueteam_combobox_select)
@@ -406,12 +410,16 @@ class BackBanpickAnalyzer(tkinter.Tk):
         
         #레드팀 콤보박스에서 임의의 팀을 선택시 해당 팀의 팀원 이름을 labelframe에 출력시키는 함수
         def redteam_combobox_select(event):
-            selected_team = combobox_redteam.get()  # 콤보박스에서 선택한 값 가져오기
+            selected = combobox_redteam.get()  # 콤보박스에서 선택한 값 가져오기
             
             #선택한 팀에 따라 팀원 labelframe에 이름 출력
             for i in range(5):
-                frame_redTeamMember[i].config(text=team_dic[selected_team][i])
-            now_match.set_redteam_Name(selected_team)
+                frame_redTeamMember[i].config(text=team_dic[selected][i])
+            if combobox_blueteam.get() == selected:
+                combobox_blueteam.set("Select Team")
+                for i in range(5):
+                    frame_blueTeamMember[i].config(text="")
+            now_match.set_redteam_Name(selected)
 
         combobox_redteam.bind("<<ComboboxSelected>>", redteam_combobox_select)
 
