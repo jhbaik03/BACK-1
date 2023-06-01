@@ -116,7 +116,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 self.redteam_Pick = [None] * 5
                 self.redteam_Ban = [None] * 5
 
-                self.winnerTeam = None
+                self.winnerteam_Name = None
+                
+                self.blueteam_KDA = [[0]*3]*5
+                self.redteam_KDA = [[0]*3]*5
                     
             #팀 이름 정보 설정
             def set_blueteam_Name(self, team_Name):
@@ -128,7 +131,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         
             #승리 팀 정보 설정
             def set_winnerTeam_Name(self, team_Name):
-                self.winnerTeam = team_Name
+                self.winnerteam_Name = team_Name
                 self.printInfo()
 
             #각 포지션 별 챔피언 정보 설정
@@ -217,7 +220,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                     return False
                 elif self.redteam_Name is None:
                     return False
-                elif self.winnerTeam is None:
+                elif self.winnerteam_Name is None:
                     return False
 
                 return True 
@@ -243,6 +246,26 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 for i in range(5):
                     print(self.redteam_Ban[i], end="   ")
                 print()
+
+                print("winner team : ", self.winnerteam_Name)
+                print()
+
+            def insert_db(self):
+                conn = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+                       db='back', charset='utf8')
+
+                sql = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueJglChampion, blueMidChampion, blueBtmChampion, blueSupChampion,
+                    redTeamName, redTopChampion, redJglChampion, redMidChampion, redBtmChampion, redSupChampion, winTeamName) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
+                with conn:
+                    with conn.cursor() as cur:
+                        cur.execute(sql, (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_Pick[1],
+                                          self.blueteam_Pick[2], self.blueteam_Pick[3], self.blueteam_Pick[4],
+                                          self.redteam_Name, self.redteam_Pick[0], self.redteam_Pick[1],
+                                          self.redteam_Pick[2], self.redteam_Pick[3], self.redteam_Pick[4],
+                                          self.winnerteam_Name))
+                        conn.commit()
 
         #현재 경기 정보 저장 객체 생성
         now_match = Match_info()
@@ -351,7 +374,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_blueTeam.place(x=0, y=height_frame_top)
 
         #승리팀을 정하는 버튼 - 버튼을 누르면 해당 팀이 승리팀이 되고, 해당 게임의 정보가 데이터베이스에 저장된다.
-        button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue')
+        # button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue',command=self.show_window_info)
+        button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue',command=lambda : self.show_window_info(now_match, now_match.blueteam_Name))
         button_blueteam.pack(side="left")
 
         combobox_blueteam=ttk.Combobox(frame_blueTeam, height=10, values=(list(team_dic.keys())), font="6",state='readonly')
@@ -396,7 +420,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_redTeam = tkinter.Frame(self, width = width_frame_redTeam, height = height_frame_redTeam, relief="solid", bg="red")
         frame_redTeam.place(x=width_window - width_frame_redTeam, y=height_frame_top)
 
-        button_redteam = tkinter.Button(frame_redTeam,width=width_frame_redTeam,height=height_frame_redTeam,bg='red')
+        button_redteam = tkinter.Button(frame_redTeam,width=width_frame_redTeam,height=height_frame_redTeam,bg='red',command=lambda : self.show_window_info(now_match, now_match.redteam_Name))
         button_redteam.pack(side='right')
 
         combobox_redteam=ttk.Combobox(frame_redTeam, height=10, values=(list(team_dic.keys())), font="6",state='readonly')
@@ -551,6 +575,92 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         # 스크롤바에도 Canvas 위젯 연결
         frame_scrollable.bind('<Configure>', lambda e: canvas_champions.configure(scrollregion=canvas_champions.bbox('all')))
+
+    def show_window_info(self, match_info, winnerTeam):
+        match_info.set_winnerTeam_Name(winnerTeam)
+        match_info.printInfo()
+        match_info.insert_db()
+
+        # Clear window 1 widgets    
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        font1=tkinter.font.Font(family="맑은 고딕", size=20)
+        font2=tkinter.font.Font(family="맑은 고딕", size=10)
+        
+        width_info=640
+        height_info=120
+        width_frame = int(width_window/4)
+
+        self.title("Save Info")
+        self.geometry("{}x{}+100+50".format(width_window, height_window))
+        self.resizable(False, False)
+
+        # 상단 프레임 생성
+        info_top = tkinter.Frame(self, bg="#322756", width=400, height=50,bd='2')
+        info_top.pack(side="top", fill='both')
+
+        # 좌 프레임 생성
+        info_left = tkinter.Frame(self, bg='skyblue',width=width_window/2, bd=3)
+        info_left.pack(side='left',fill='y')
+
+        frame_blueinfo = []
+        frame_blueteam = []
+        frame_bluekda = []
+        label_blueteam = []
+        label_bluekda = []
+
+        for i in range(5):
+            frame_blueinfo.append(tkinter.LabelFrame(info_left, width=int(width_window/2), height=int(height_info), relief="solid", bg="blue", bd=1))
+            frame_blueinfo[i].place(x=0, y=int(height_info*i))
+
+            frame_blueteam.append(tkinter.LabelFrame(frame_blueinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="blue", bd=1, text=team_dic[match_info.blueteam_Name][i]+" : "+match_info.blueteam_Pick[i]))
+            frame_blueteam[i].pack(side='left', fill='none')
+
+            label_blueteam.append(tkinter.Label(frame_blueteam[i],width=int(45),height=int(height_info),relief="solid",bg='blue',bd=0))
+            label_blueteam[i].pack()
+
+            frame_bluekda.append(tkinter.Frame(frame_blueinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="white", bd=1))
+            frame_bluekda[i].pack(side='right', fill='none')
+
+            label_bluekda.append(tkinter.Label(frame_bluekda[i],width=width_frame,height=int(height_info),relief="solid",bg='white',bd=0))
+            label_bluekda[i].pack()
+
+# 우 프레임 생성
+        info_right = tkinter.Frame(self, bg='pink', width=width_window/2, bd=3)
+
+# 우 프레임을 윈도우 오른쪽에 위치시킴
+        info_right.pack(side='right', fill='y')
+
+        frame_redinfo = []
+        frame_redteam = []
+        frame_redkda = []
+        label_redteam = []
+        label_redkda = []
+
+        for i in range(5):
+            frame_redinfo.append(tkinter.LabelFrame(info_right, width=int(width_window/2), height=int(height_info), relief="solid", bg="red", bd=1))
+            frame_redinfo[i].place(x=0, y=int(height_info*i))
+
+            frame_redteam.append(tkinter.LabelFrame(frame_redinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="red", bd=1, text=team_dic[match_info.redteam_Name][i]+" : "+match_info.redteam_Pick[i]))
+            frame_redteam[i].pack(side='left', fill='none')
+
+            label_redteam.append(tkinter.Label(frame_redteam[i],width=int(45),height=int(height_info),relief="solid",bg='red',bd=0))
+            label_redteam[i].pack()
+
+            frame_redkda.append(tkinter.Frame(frame_redinfo[i], width=width_frame, height=int(height_info), relief="solid", bg="white", bd=1))
+            frame_redkda[i].pack(side='right', fill='none')
+
+            label_redkda.append(tkinter.Label(frame_redkda[i],width=width_frame,height=int(height_info),relief="solid",bg='white',bd=0))
+            label_redkda[i].pack()
+
+
+        button_home = tkinter.Button(info_top, text="HOME", font=font1, bg="black", foreground="white", anchor='center',command=self.show_window_main)
+        button_home.pack(side='top')
+        button_blue = tkinter.Button(info_top, text='BLUE WIN', font=font1, bg="blue", foreground="white", anchor='center')
+        button_blue.pack(side="left")
+        button_red = tkinter.Button(info_top, text='RED WIN', font=font1, bg="red", foreground="white", anchor='center')
+        button_red.pack(side='right')
 
 
     def show_window_analyze(self):
