@@ -1,6 +1,5 @@
 import tkinter
 import tkinter.font
-import numpy as np
 from tkinter import ttk
 from PIL import Image, ImageTk
 
@@ -822,7 +821,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         font1=tkinter.font.Font(family="맑은 고딕", size=20)
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
         
-        self.title("ANALYZING TOOL")
+        self.title("Champion Analyze")
         self.geometry("{}x{}+100+50".format(width_window, height_window))
         self.resizable(False, False)
 
@@ -832,14 +831,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
         champ_main = tkinter.Frame(self, width=width_window, height=620, bg='red')
         champ_main.pack(side="top")
         
-        label_champ=tkinter.Button(champ_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
+        label_champ=tkinter.Button(champ_top, text="BACK", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
         label_champ.place(relx=0.8, rely=0.23)
 
-        champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'])
+        champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],height=30)
         champ_treeview.pack(ipadx=40)
 
-        champ_treeview.column('champ',width=200)
-        champ_treeview.heading("champ",text="champ")
+        champ_treeview.column('champ',width=200,anchor='center')
+        champ_treeview.heading("champ",text="champ",anchor="center")
 
         champ_treeview.column('W.R',width=200)
         champ_treeview.heading("W.R",text="W.R")
@@ -871,7 +870,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         font1=tkinter.font.Font(family="맑은 고딕", size=20)
         font2=tkinter.font.Font(family="맑은 고딕", size=10)
         
-        self.title("ANALYZING TOOL")
+        self.title("Player Analyze")
         self.geometry("{}x{}+100+50".format(width_window, height_window))
         self.resizable(False, False)
 
@@ -879,44 +878,61 @@ class BackBanpickAnalyzer(tkinter.Tk):
         player_top.pack(side="top")
 
         player_main = tkinter.Frame(self, width=width_window, height=620, bg='red')
-        player_main.pack(side="bottom")
+        player_main.pack(side="top")
         
-        label_player=tkinter.Button(player_top, text="HOME", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
+        label_player=tkinter.Button(player_top, text="BACK", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
         label_player.place(relx=0.8, rely=0.23)
 
-        player_treeview = ttk.Treeview(player_main, columns=["TEAM","TOP",'JGL','MID','ADC','SPT'],displaycolumns=["TEAM","TOP",'JGL','MID','ADC','SPT'])
+        player_treeview = ttk.Treeview(player_main, columns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],displaycolumns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],height=50,selectmode="browse")
         player_treeview.pack()
-
-        player_treeview.column('#0',width=80)
-        player_treeview.heading("#0",text="TEAM")
-
-        player_treeview.column('#1',width=240)
-        player_treeview.heading("#1",text="TOP")
-
-        player_treeview.column('#2',width=240)
-        player_treeview.heading("#2",text="JGL")
-
-        player_treeview.column('#3',width=240)
-        player_treeview.heading("#3",text="MID")
-
-        player_treeview.column('#4',width=240)
-        player_treeview.heading("#4",text="ADC")
-
-        player_treeview.column('#5',width=240)
-        player_treeview.heading("#5",text="SPT")
-
-    def show_window6(self):
-        # Clear window 1 widgets
-        for widget in self.winfo_children():
-            widget.destroy()
-
-        font1=tkinter.font.Font(family="맑은 고딕", size=20)
-        font2=tkinter.font.Font(family="맑은 고딕", size=10)
         
-        self.title("ANALYZING TOOL")
-        self.geometry("{}x{}+100+50".format(width_window, height_window))
-        self.resizable(False, False)
+        player_treeview.column('#0',width=100)
+        player_treeview.heading("#0",text="Player")
 
+        player_treeview.column('#1',width=236)
+        player_treeview.heading("#1",text="MOST1")
+
+        player_treeview.column('#2',width=236)
+        player_treeview.heading("#2",text="MOST2")
+
+        player_treeview.column('#3',width=236)
+        player_treeview.heading("#3",text="MOST3")
+
+        player_treeview.column('#4',width=236)
+        player_treeview.heading("#4",text="MOST4")
+
+        player_treeview.column('#5',width=236)
+        player_treeview.heading("#5",text="MOST5")
+
+        player_treeview["show"]="tree headings"
+
+        treeview_data = [row[2] for row in team_member]
+        my_tag='T1'
+        player_treeview.tag_configure('T1',background='red')
+        player_treeview.tag_configure('Gen',background='yellow')
+        player_treeview.tag_configure('KT',background='red')
+        player_treeview.tag_configure('DK',background='lightgrey')
+        player_treeview.tag_configure('HLE',background='orange')
+        player_treeview.tag_configure('LSB',background='yellow')
+        player_treeview.tag_configure('KDF',background='red')
+        player_treeview.tag_configure('DRX',background='blue')
+        player_treeview.tag_configure('BRO',background='green')
+        player_treeview.tag_configure('NS',background='red')
+
+        
+        
+        for i in range(len(treeview_data)):
+            player_treeview.insert('', 'end', text=treeview_data[i],tags=(my_tag))
+            if (i+1<=4):my_tag='T1'
+            elif (i+1<=9):my_tag='Gen'
+            elif (i+1<=14):my_tag='KT'
+            elif (i+1<=19):my_tag='DK'
+            elif (i+1<=24):my_tag='HLE'
+            elif (i+1<=29):my_tag='LSB'
+            elif (i+1<=34):my_tag='KDF'
+            elif (i+1<=39):my_tag='DRX'
+            elif (i+1<=44):my_tag='BRO'
+            elif (i+1<=49):my_tag='NS'
 
 if __name__ == '__main__':
     app = BackBanpickAnalyzer()
