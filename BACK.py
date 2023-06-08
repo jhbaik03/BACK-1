@@ -117,8 +117,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
                 self.winnerTeam_Name = None
 
-                self.blueteam_KDA = [[0]*3]*5
-                self.redteam_KDA = [[0]*3]*5
+                self.blueteam_KDA = [[None, None, None], [None, None, None], [None, None, None], [None, None, None], [None, None, None]]
+                self.redteam_KDA = [[None, None, None], [None, None, None], [None, None, None], [None, None, None], [None, None, None]]
                     
             #팀 이름 정보 설정
             def set_blueteam_Name(self, team_Name):
@@ -228,6 +228,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print("blue : ", self.blueteam_Name)
                 for i in range(5):
                     print(str(i), " : ", self.blueteam_Pick[i], end="  ")
+                    print(self.blueteam_KDA[i][0], self.blueteam_KDA[i][1],self.blueteam_KDA[i][2])
                 print()
                 
                 print("blueTeam Ban : ", end=" ")
@@ -250,19 +251,55 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print()
 
             def insert_db(self):
+                for a in (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_KDA[0][0], self.blueteam_KDA[0][1], self.blueteam_KDA[0][2],
+                                          self.blueteam_Pick[1], self.blueteam_KDA[1][0], self.blueteam_KDA[1][1], self.blueteam_KDA[1][2],
+                                          self.blueteam_Pick[2], self.blueteam_KDA[2][0], self.blueteam_KDA[2][1], self.blueteam_KDA[2][2],
+                                          self.blueteam_Pick[3], self.blueteam_KDA[3][0], self.blueteam_KDA[3][1], self.blueteam_KDA[3][2],
+                                          self.blueteam_Pick[4], self.blueteam_KDA[4][0], self.blueteam_KDA[4][1], self.blueteam_KDA[4][2],
+                                          self.redteam_Name, self.redteam_Pick[0], self.redteam_KDA[0][0], self.redteam_KDA[0][1], self.redteam_KDA[0][2],
+                                          self.redteam_Pick[1], self.redteam_KDA[1][0], self.redteam_KDA[1][1], self.redteam_KDA[1][2],
+                                          self.redteam_Pick[2], self.redteam_KDA[2][0], self.redteam_KDA[2][1], self.redteam_KDA[2][2],
+                                          self.redteam_Pick[3], self.redteam_KDA[3][0], self.redteam_KDA[3][1], self.redteam_KDA[3][2],
+                                          self.redteam_Pick[4], self.redteam_KDA[4][0], self.redteam_KDA[4][1], self.redteam_KDA[4][2],
+                                          self.winnerTeam_Name):
+                    print(a)
+                
                 conn = pymysql.connect(host='192.168.219.100', user='back', password='0000',
                        db='back', charset='utf8')
 
-                sql = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueJglChampion, blueMidChampion, blueBtmChampion, blueSupChampion,
-                    redTeamName, redTopChampion, redJglChampion, redMidChampion, redBtmChampion, redSupChampion, winTeamName) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                sql = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueTopKill, blueTopDeath, blueTopAssist,
+                    blueJglChampion, blueJglKill, blueJglDeath, blueJglAssist,
+                    blueMidChampion, blueMidKill, blueMidDeath, blueMidAssist,
+                    blueBtmChampion, blueBtmKill, blueBtmDeath, blueBtmAssist,
+                    blueSupChampion, blueSupKill, blueSupDeath, blueSupAssist,
+                    redTeamName, redTopChampion, redTopKill, redTopDeath, redTopAssist,
+                    redJglChampion, redJglKill, redJglDeath, redJglAssist,
+                    redMidChampion, redMidKill, redMidDeath, redMidAssist,
+                    redBtmChampion, redBtmKill, redBtmDeath, redBtmAssist,
+                    redSupChampion, redSupKill, redSupDeath, redSupAssist, winTeamName) 
+                    VALUES (%s, %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s, 
+                    %s, %s, %s, %s, 
+                    %s, %s, %s, %s, 
+                    %s, %s, %s, %s, %s)"""
 
                 with conn:
                     with conn.cursor() as cur:
-                        cur.execute(sql, (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_Pick[1],
-                                          self.blueteam_Pick[2], self.blueteam_Pick[3], self.blueteam_Pick[4],
-                                          self.redteam_Name, self.redteam_Pick[0], self.redteam_Pick[1],
-                                          self.redteam_Pick[2], self.redteam_Pick[3], self.redteam_Pick[4],
+                        cur.execute(sql, (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_KDA[0][0], self.blueteam_KDA[0][1], self.blueteam_KDA[0][2],
+                                          self.blueteam_Pick[1], self.blueteam_KDA[1][0], self.blueteam_KDA[1][1], self.blueteam_KDA[1][2],
+                                          self.blueteam_Pick[2], self.blueteam_KDA[2][0], self.blueteam_KDA[2][1], self.blueteam_KDA[2][2],
+                                          self.blueteam_Pick[3], self.blueteam_KDA[3][0], self.blueteam_KDA[3][1], self.blueteam_KDA[3][2],
+                                          self.blueteam_Pick[4], self.blueteam_KDA[4][0], self.blueteam_KDA[4][1], self.blueteam_KDA[4][2],
+                                          self.redteam_Name, self.redteam_Pick[0], self.redteam_KDA[0][0], self.redteam_KDA[0][1], self.redteam_KDA[0][2],
+                                          self.redteam_Pick[1], self.redteam_KDA[1][0], self.redteam_KDA[1][1], self.redteam_KDA[1][2],
+                                          self.redteam_Pick[2], self.redteam_KDA[2][0], self.redteam_KDA[2][1], self.redteam_KDA[2][2],
+                                          self.redteam_Pick[3], self.redteam_KDA[3][0], self.redteam_KDA[3][1], self.redteam_KDA[3][2],
+                                          self.redteam_Pick[4], self.redteam_KDA[4][0], self.redteam_KDA[4][1], self.redteam_KDA[4][2],
                                           self.winnerTeam_Name))
                         conn.commit()
 
@@ -373,7 +410,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_blueTeam.place(x=0, y=height_frame_top)
 
         #승리팀을 정하는 버튼 - 버튼을 누르면 해당 팀이 승리팀이 되고, 해당 게임의 정보가 데이터베이스에 저장된다.
-        button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue',command=lambda : self.show_window_info(now_match, now_match.blueteam_Name))
+        button_blueteam = tkinter.Button(frame_blueTeam, width=width_frame_blueTeam, height=height_frame_blueTeam, text='승리', bg='blue',command=lambda : self.show_window_info(now_match))
         button_blueteam.pack(side="left")
 
         combobox_blueteam=ttk.Combobox(frame_blueTeam, height=10, values=(list(team_dic.keys())), font="6",state='readonly')
@@ -422,7 +459,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         frame_redTeam = tkinter.Frame(self, width = width_frame_redTeam, height = height_frame_redTeam, relief="solid", bg="red")
         frame_redTeam.place(x=width_window - width_frame_redTeam, y=height_frame_top)
 
-        button_redteam = tkinter.Button(frame_redTeam,width=width_frame_redTeam,height=height_frame_redTeam,bg='red',command=lambda : self.show_window_info(now_match, now_match.redteam_Name))
+        button_redteam = tkinter.Button(frame_redTeam,width=width_frame_redTeam,height=height_frame_redTeam,bg='red',command=lambda : self.show_window_info(now_match))
         button_redteam.pack(side='right')
 
         combobox_redteam=ttk.Combobox(frame_redTeam, height=10, values=(list(team_dic.keys())), font="6",state='readonly')
@@ -582,12 +619,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         # 스크롤바에도 Canvas 위젯 연결
         frame_scrollable.bind('<Configure>', lambda e: canvas_champions.configure(scrollregion=canvas_champions.bbox('all')))
 
-    def show_window_info(self, match_info, winnerTeam):
-        
-        match_info.set_winnerTeam_Name(winnerTeam)
-        match_info.printInfo()
-        match_info.insert_db()
-
+    def show_window_info(self, match_info):
         # Clear window 1 widgets
         for widget in self.winfo_children():
             widget.destroy()
@@ -604,29 +636,43 @@ class BackBanpickAnalyzer(tkinter.Tk):
         self.geometry("{}x{}+100+50".format(width_window, height_window))
         self.resizable(False, False)
 
-        def update_bluelabel(event=None):
+        def update_bluelabel(event=None, Match_info=None):
             for i in range(5):
                 k_text = blue_kill[i].get()
                 d_text = blue_death[i].get()
                 a_text = blue_assist[i].get()
+                Match_info.blueteam_KDA[i][0] = k_text
+                Match_info.blueteam_KDA[i][1] = d_text
+                Match_info.blueteam_KDA[i][2] = a_text
+                print(i)
+                print(k_text)
+                print(d_text)
+                print(a_text)
+                print(match_info.blueteam_KDA[i][0])
                 label_text = f"Kill: {k_text}\nDeath: {d_text}\nAssist: {a_text}"
                 label_blueteam[i].config(text=label_text)
                 print(label_blueteam[i].cget('text'))
                 blue_kill[i].delete(0, tkinter.END)
                 blue_death[i].delete(0, tkinter.END)
                 blue_assist[i].delete(0, tkinter.END)
+                Match_info.printInfo()
 
-        def update_redlabel(event=None):
+        def update_redlabel(event=None, Match_info=None):
             for i in range(5):
                 k_text = red_kill[i].get()
                 d_text = red_death[i].get()
                 a_text = red_assist[i].get()
+                Match_info.redteam_KDA[i][0] = k_text
+                Match_info.redteam_KDA[i][1] = d_text
+                Match_info.redteam_KDA[i][2] = a_text
                 label_text = f"Kill: {k_text}\nDeath: {d_text}\nAssist: {a_text}"
                 label_redteam[i].config(text=label_text)
                 print(label_redteam[i].cget('text'))
                 red_kill[i].delete(0, tkinter.END)
                 red_death[i].delete(0, tkinter.END)
                 red_assist[i].delete(0, tkinter.END)
+
+
         # 상단 프레임 생성
         info_top = tkinter.Frame(self, bg="#322756", width=400, height=50,bd='2')
         info_top.pack(side="top", fill='both')
@@ -658,15 +704,15 @@ class BackBanpickAnalyzer(tkinter.Tk):
             frame_bluekda[i].pack(side='right', fill='y',expand=True)
 
             blue_kill.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
-            blue_kill[i].bind("<Return>", update_bluelabel)
+            blue_kill[i].bind("<Return>", lambda event : update_bluelabel(event, Match_info=match_info))
             blue_kill[i].pack()
 
             blue_death.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
-            blue_death[i].bind("<Return>", update_bluelabel)
+            blue_death[i].bind("<Return>", lambda event : update_bluelabel(event, Match_info=match_info))
             blue_death[i].pack()
 
             blue_assist.append(tkinter.Entry(frame_bluekda[i],width=width_frame,font=font3))
-            blue_assist[i].bind("<Return>", update_bluelabel)
+            blue_assist[i].bind("<Return>", lambda event : update_bluelabel(event, Match_info=match_info))
             blue_assist[i].pack()
 
 # 우 프레임 생성
@@ -698,23 +744,35 @@ class BackBanpickAnalyzer(tkinter.Tk):
             frame_redkda[i].pack(side='right', fill='y',expand=True)
 
             red_kill.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
-            red_kill[i].bind("<Return>", update_redlabel)
+            red_kill[i].bind("<Return>", lambda event : update_redlabel(event, Match_info=match_info))
             red_kill[i].pack()
 
             red_death.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
-            red_death[i].bind("<Return>", update_redlabel)
+            red_death[i].bind("<Return>", lambda event : update_redlabel(event, Match_info=match_info))
             red_death[i].pack()
 
             red_assist.append(tkinter.Entry(frame_redkda[i],width=width_frame,font=font3))
-            red_assist[i].bind("<Return>", update_redlabel)
+            red_assist[i].bind("<Return>", lambda event : update_redlabel(event, Match_info=match_info))
             red_assist[i].pack()
 
+        def click_bluteam_win(event, self):
+            match_info.set_winnerTeam_Name(match_info.blueteam_Name)
+            match_info.printInfo()
+            match_info.insert_db()
+            self.show_window_analyze()
+
+        def click_redteam_win(event, self):
+            match_info.set_winnerTeam_Name(match_info.redteam_Name)
+            match_info.printInfo()
+            match_info.insert_db()
+            self.show_window_analyze()
 
         button_home = tkinter.Button(info_top, text="HOME", font=font1, bg="black", foreground="white", anchor='center',command=self.show_window_main)
         button_home.pack(side='top')
-        button_blue = tkinter.Button(info_top, text='BLUE WIN', font=font1, bg="blue", foreground="white", anchor='center',command=self.show_window_analyze)
+        button_blue = tkinter.Button(info_top, text='BLUE WIN', font=font1, bg="blue", foreground="white", anchor='center')
+        button_blue.bind("<Button-1>", lambda event : click_bluteam_win(event, self))
         button_blue.pack(side="left")
-        button_red = tkinter.Button(info_top, text='RED WIN', font=font1, bg="red", foreground="white", anchor='center',command=self.show_window_analyze)
+        button_red = tkinter.Button(info_top, text='RED WIN', font=font1, bg="red", foreground="white", anchor='center', command=lambda : self.click_redteam_win(match_info, self))
         button_red.pack(side='right')
 
 
@@ -799,7 +857,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         champ_treeview["show"]="headings"
         
-        treeview_data = [row[1] for row in champion_data]
+        treeview_data = [(row[1], row[4], row[5], row[6], row[7], row[10]) for row in champion_data]
         
         for i in range(len(treeview_data)):
             champ_treeview.insert('', 'end', values=treeview_data[i])
@@ -827,7 +885,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         player_treeview = ttk.Treeview(player_main, columns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],displaycolumns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],height=50,selectmode="browse")
         player_treeview.pack()
-
+        
         player_treeview.column('#0',width=100)
         player_treeview.heading("#0",text="Player")
 
@@ -875,11 +933,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
             elif (i+1<=39):my_tag='DRX'
             elif (i+1<=44):my_tag='BRO'
             elif (i+1<=49):my_tag='NS'
-            
-
 
 if __name__ == '__main__':
     app = BackBanpickAnalyzer()
     app.mainloop()
-
-
