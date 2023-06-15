@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import pymysql
 
 # STEP 2: MySQL Connection 연결
-con = pymysql.connect(host='192.168.219.100', user='back', password='0000',
+con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -24,7 +24,7 @@ champion_data = sorted(champion_data, key=lambda x:x[1])
 con.close()
 
 
-con = pymysql.connect(host='192.168.219.100', user='back', password='0000',
+con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -264,7 +264,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                                           self.winnerTeam_Name):
                     print(a)
                 
-                conn = pymysql.connect(host='192.168.219.100', user='back', password='0000',
+                conn = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8')
 
                 sql = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueTopKill, blueTopDeath, blueTopAssist,
@@ -908,16 +908,16 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         treeview_data = [row[2] for row in team_member]
         my_tag='T1'
-        player_treeview.tag_configure('T1',background='red')
-        player_treeview.tag_configure('Gen',background='yellow')
-        player_treeview.tag_configure('KT',background='red')
+        player_treeview.tag_configure('T1',background='lightred')
+        player_treeview.tag_configure('Gen',background='lightyellow')
+        player_treeview.tag_configure('KT',background='lightred')
         player_treeview.tag_configure('DK',background='lightgrey')
-        player_treeview.tag_configure('HLE',background='orange')
-        player_treeview.tag_configure('LSB',background='yellow')
-        player_treeview.tag_configure('KDF',background='red')
-        player_treeview.tag_configure('DRX',background='blue')
-        player_treeview.tag_configure('BRO',background='green')
-        player_treeview.tag_configure('NS',background='red')
+        player_treeview.tag_configure('HLE',background='lightorange')
+        player_treeview.tag_configure('LSB',background='lightyellow')
+        player_treeview.tag_configure('KDF',background='lightred')
+        player_treeview.tag_configure('DRX',background='lightblue')
+        player_treeview.tag_configure('BRO',background='lightgreen')
+        player_treeview.tag_configure('NS',background='lightred')
 
         
         
