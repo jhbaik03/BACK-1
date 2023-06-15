@@ -250,24 +250,11 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print("winner team : ", self.winnerTeam_Name)
                 print()
 
-            def insert_db(self):
-                for a in (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_KDA[0][0], self.blueteam_KDA[0][1], self.blueteam_KDA[0][2],
-                                          self.blueteam_Pick[1], self.blueteam_KDA[1][0], self.blueteam_KDA[1][1], self.blueteam_KDA[1][2],
-                                          self.blueteam_Pick[2], self.blueteam_KDA[2][0], self.blueteam_KDA[2][1], self.blueteam_KDA[2][2],
-                                          self.blueteam_Pick[3], self.blueteam_KDA[3][0], self.blueteam_KDA[3][1], self.blueteam_KDA[3][2],
-                                          self.blueteam_Pick[4], self.blueteam_KDA[4][0], self.blueteam_KDA[4][1], self.blueteam_KDA[4][2],
-                                          self.redteam_Name, self.redteam_Pick[0], self.redteam_KDA[0][0], self.redteam_KDA[0][1], self.redteam_KDA[0][2],
-                                          self.redteam_Pick[1], self.redteam_KDA[1][0], self.redteam_KDA[1][1], self.redteam_KDA[1][2],
-                                          self.redteam_Pick[2], self.redteam_KDA[2][0], self.redteam_KDA[2][1], self.redteam_KDA[2][2],
-                                          self.redteam_Pick[3], self.redteam_KDA[3][0], self.redteam_KDA[3][1], self.redteam_KDA[3][2],
-                                          self.redteam_Pick[4], self.redteam_KDA[4][0], self.redteam_KDA[4][1], self.redteam_KDA[4][2],
-                                          self.winnerTeam_Name):
-                    print(a)
-                
+            def insert_db(self):                
                 conn = pymysql.connect(host='192.168.219.102', user='back', password='0000',
                        db='back', charset='utf8')
 
-                sql = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueTopKill, blueTopDeath, blueTopAssist,
+                sql_pick_and_KDA = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueTopKill, blueTopDeath, blueTopAssist,
                     blueJglChampion, blueJglKill, blueJglDeath, blueJglAssist,
                     blueMidChampion, blueMidKill, blueMidDeath, blueMidAssist,
                     blueBtmChampion, blueBtmKill, blueBtmDeath, blueBtmAssist,
@@ -287,10 +274,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
                     %s, %s, %s, %s, 
                     %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s)"""
+                
+                sql_ban = """INSERT INTO match_ban (matchID, blueteam_ban1, blueteam_ban2, blueteam_ban3, blueteam_ban4, 
+                    blueteam_ban5, redteam_ban1, redteam_ban2, redteam_ban3, redteam_ban4, redteam_ban5) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
                 with conn:
                     with conn.cursor() as cur:
-                        cur.execute(sql, (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_KDA[0][0], self.blueteam_KDA[0][1], self.blueteam_KDA[0][2],
+                        cur.execute(sql_pick_and_KDA, (self.blueteam_Name, self.blueteam_Pick[0], self.blueteam_KDA[0][0], self.blueteam_KDA[0][1], self.blueteam_KDA[0][2],
                                           self.blueteam_Pick[1], self.blueteam_KDA[1][0], self.blueteam_KDA[1][1], self.blueteam_KDA[1][2],
                                           self.blueteam_Pick[2], self.blueteam_KDA[2][0], self.blueteam_KDA[2][1], self.blueteam_KDA[2][2],
                                           self.blueteam_Pick[3], self.blueteam_KDA[3][0], self.blueteam_KDA[3][1], self.blueteam_KDA[3][2],
@@ -301,6 +292,14 @@ class BackBanpickAnalyzer(tkinter.Tk):
                                           self.redteam_Pick[3], self.redteam_KDA[3][0], self.redteam_KDA[3][1], self.redteam_KDA[3][2],
                                           self.redteam_Pick[4], self.redteam_KDA[4][0], self.redteam_KDA[4][1], self.redteam_KDA[4][2],
                                           self.winnerTeam_Name))
+                        conn.commit()
+
+                    last_insert_id = cur.lastrowid
+
+                    with conn.cursor() as cur:
+                        # matchID 값을 다른 테이블에 사용
+                        cur.execute(sql_ban, (last_insert_id, self.blueteam_Ban[0],self.blueteam_Ban[1],self.blueteam_Ban[2],self.blueteam_Ban[3],self.blueteam_Ban[4],
+                                          self.redteam_Ban[0],self.redteam_Ban[1],self.redteam_Ban[2],self.redteam_Ban[3],self.redteam_Ban[4]))
                         conn.commit()
 
         #현재 경기 정보 저장 객체 생성
@@ -814,7 +813,26 @@ class BackBanpickAnalyzer(tkinter.Tk):
         label_top.pack(side='top',fill='x')
 
     def show_window_analyze_champion(self):
-        # Clear window 1 widgets
+        #SQL 접근
+        
+        # STEP 2: MySQL Connection 연결
+        con_champ = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+                       db='back', charset='utf8') # 한글처리 (charset = 'utf8')
+ 
+        # STEP 3: Connection 으로부터 Cursor 생성
+        cur_champ = con_champ.cursor()
+
+        # STEP 4: SQL문 실행 및 Fetch
+        sql = "SELECT * FROM champion"
+        cur_champ.execute(sql)
+ 
+        # 데이타 Fetch
+        re_champion_data = cur_champ.fetchall() #(id, kor_name, eng_name, img_name)
+        re_champion_data = sorted(re_champion_data, key=lambda x:x[1])
+
+        # STEP 5: DB 연결 종료
+        con_champ.close()        # Clear window 1 widgets
+
         for widget in self.winfo_children():
             widget.destroy()
 
@@ -857,8 +875,10 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         champ_treeview["show"]="headings"
         
-        treeview_data = [(row[1], row[4], row[5], row[6], row[7], row[10]) for row in champion_data]
-        
+        treeview_data = [(row[1], row[4], row[5], row[6], 
+                          round((int(row[7])+int(row[9]))/int(row[8]), 2) if int(row[8])!=0 else "PERFECT", 
+                          "RED : {:.2f}%".format(row[10] / (row[10] + row[11]) * 100) if row[10]>row[11] else "BLUE : {:.2f}%".format(row[11] / (row[10] + row[11]) * 100) if row[10]+row[11] != 0 else "NONE") for row in re_champion_data]
+            
         for i in range(len(treeview_data)):
             champ_treeview.insert('', 'end', values=treeview_data[i])
 
