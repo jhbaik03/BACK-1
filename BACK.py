@@ -830,6 +830,11 @@ class BackBanpickAnalyzer(tkinter.Tk):
         re_champion_data = cur_champ.fetchall() #(id, kor_name, eng_name, img_name)
         re_champion_data = sorted(re_champion_data, key=lambda x:x[1])
 
+        sql2 = "SELECT COUNT(*) FROM match_result;"
+        cur_champ.execute(sql2)
+        row_count = cur_champ.fetchone()[0]
+        print(row_count)
+
         # STEP 5: DB 연결 종료
         con_champ.close()        # Clear window 1 widgets
 
@@ -875,7 +880,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         champ_treeview["show"]="headings"
         
-        treeview_data = [(row[1], row[4], row[5], row[6], 
+        treeview_data = [(row[1], "{:.2f}%".format(row[4] / (row[10] + row[11]) * 100) if row[10] + row[11]!=0 and row[4]!=0 else 0, 
+                          round(row[5]/row_count*100, 2), round(row[6]/row_count*100, 2), 
                           round((int(row[7])+int(row[9]))/int(row[8]), 2) if int(row[8])!=0 else "PERFECT", 
                           "RED : {:.2f}%".format(row[10] / (row[10] + row[11]) * 100) if row[10]>row[11] else "BLUE : {:.2f}%".format(row[11] / (row[10] + row[11]) * 100) if row[10]+row[11] != 0 else "NONE") for row in re_champion_data]
             
