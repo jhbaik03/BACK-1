@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import pymysql
 
 # STEP 2: MySQL Connection 연결
-con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+con = pymysql.connect(host='172.30.1.18', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -24,7 +24,7 @@ champion_data = sorted(champion_data, key=lambda x:x[1])
 con.close()
 
 
-con = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+con = pymysql.connect(host='172.30.1.18', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
 # STEP 3: Connection 으로부터 Cursor 생성
@@ -251,7 +251,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
                 print()
 
             def insert_db(self):                
-                conn = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+                conn = pymysql.connect(host='172.30.1.18', user='back', password='0000',
                        db='back', charset='utf8')
 
                 sql_pick_and_KDA = """INSERT INTO match_result (blueTeamName, blueTopChampion, blueTopKill, blueTopDeath, blueTopAssist,
@@ -816,7 +816,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         #SQL 접근
         
         # STEP 2: MySQL Connection 연결
-        con_champ = pymysql.connect(host='192.168.219.102', user='back', password='0000',
+        con_champ = pymysql.connect(host='172.30.1.18', user='back', password='0000',
                        db='back', charset='utf8') # 한글처리 (charset = 'utf8')
  
         # STEP 3: Connection 으로부터 Cursor 생성
@@ -889,6 +889,62 @@ class BackBanpickAnalyzer(tkinter.Tk):
             champ_treeview.insert('', 'end', values=treeview_data[i])
 
     def show_window_player(self):
+        # STEP 2: MySQL Connection 연결
+        con_player = pymysql.connect(host='172.30.1.18', user='back', password='0000',
+                       db='back', charset='utf8') # 한글처리 (charset = 'utf8')
+ 
+        # STEP 3: Connection 으로부터 Cursor 생성
+        cur_player = con_player.cursor()
+
+        # STEP 4: SQL문 실행 및 Fetch
+        sql = "SELECT * FROM match_result ORDER BY winTeamName;"
+        cur_player.execute(sql)
+ 
+        # 데이타 Fetch
+        player_data = cur_player.fetchall() #(id, kor_name, eng_name, img_name)
+
+        sql2 = "SELECT COUNT(*) FROM match_result;"
+        cur_player.execute(sql2)
+        match_count = cur_player.fetchone()[0]
+
+        
+        sql3 = "SELECT table_team.Team_Initial, player.Player_ID, player.Player_Name, player.Position\
+            FROM table_team \
+            INNER JOIN 2023_lck_team_player ON 2023_lck_team_player.Team_ID=table_team.Team_ID\
+            INNER JOIN player ON 2023_lck_team_player.Player_ID=player.Player_ID AND player.Main=0"
+        cur_player.execute(sql3)
+
+        team_member = cur_player.fetchall()
+        team_member = sorted(team_member, key=lambda x:x[1])
+
+        team_dic = {}
+        for item in team_member:
+            team = item[0]
+            player = item[2]
+            team_dic.setdefault(team, []).append(player)
+
+        #(team:(member_list))
+        team_dic = {team: tuple(players) for team, players in team_dic.items()}
+        print(team_dic)
+
+        # STEP 5: DB 연결 종료
+        con_player.close() 
+
+        member_data = []
+
+        for team in team_dic:
+            for member in team:
+                print(member)
+
+        for row in player_data:
+            print(row[-1]) #winner
+            print(row[1]) #blueteam
+            print(row[22]) #redteam
+            member_data.append(("팀", "포지션", "승", "킬", "데스", "어시스트"))
+
+        print(member_data)
+        
+
         # Clear window 1 widgets
         for widget in self.winfo_children():
             widget.destroy()
@@ -934,16 +990,16 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         treeview_data = [row[2] for row in team_member]
         my_tag='T1'
-        player_treeview.tag_configure('T1',background='lightred')
+        player_treeview.tag_configure('T1',background='red')
         player_treeview.tag_configure('Gen',background='lightyellow')
-        player_treeview.tag_configure('KT',background='lightred')
+        player_treeview.tag_configure('KT',background='red')
         player_treeview.tag_configure('DK',background='lightgrey')
-        player_treeview.tag_configure('HLE',background='lightorange')
+        player_treeview.tag_configure('HLE',background='orange')
         player_treeview.tag_configure('LSB',background='lightyellow')
-        player_treeview.tag_configure('KDF',background='lightred')
+        player_treeview.tag_configure('KDF',background='red')
         player_treeview.tag_configure('DRX',background='lightblue')
         player_treeview.tag_configure('BRO',background='lightgreen')
-        player_treeview.tag_configure('NS',background='lightred')
+        player_treeview.tag_configure('NS',background='red')
 
         
         
