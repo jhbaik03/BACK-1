@@ -853,7 +853,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         label_champ=tkinter.Button(champ_top, text="BACK", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
         label_champ.place(relx=0.8, rely=0.23)
 
-        champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],height=30)
+        champ_treeview = ttk.Treeview(champ_main, columns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],displaycolumns=["champ",'W.R','B.R','P.R','K/D/A','SIDE Preference'],height=30, selectmode="browse")
         champ_treeview.pack(ipadx=40)
 
         champ_treeview.column('champ',width=200,anchor='center')
@@ -874,7 +874,7 @@ class BackBanpickAnalyzer(tkinter.Tk):
         champ_treeview.column('SIDE Preference',width=280)
         champ_treeview.heading("SIDE Preference",text="SIDE Preference")
 
-        champ_treeview["show"]="headings"
+        champ_treeview["show"]="tree headings"
         
         treeview_data = [(row[1], row[4], row[5], row[6], 
                           round((int(row[7])+int(row[9]))/int(row[8]), 2) if int(row[8])!=0 else "PERFECT", 
