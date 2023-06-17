@@ -771,7 +771,8 @@ class BackBanpickAnalyzer(tkinter.Tk):
         button_blue = tkinter.Button(info_top, text='BLUE WIN', font=font1, bg="blue", foreground="white", anchor='center')
         button_blue.bind("<Button-1>", lambda event : click_bluteam_win(event, self))
         button_blue.pack(side="left")
-        button_red = tkinter.Button(info_top, text='RED WIN', font=font1, bg="red", foreground="white", anchor='center', command=lambda : self.click_redteam_win(match_info, self))
+        button_red = tkinter.Button(info_top, text='RED WIN', font=font1, bg="red", foreground="white", anchor='center')
+        button_red.bind("<Button-1>", lambda event : click_redteam_win(event, self))
         button_red.pack(side='right')
 
 
@@ -917,33 +918,81 @@ class BackBanpickAnalyzer(tkinter.Tk):
         team_member = cur_player.fetchall()
         team_member = sorted(team_member, key=lambda x:x[1])
 
-        team_dic = {}
+        team_d = {}
         for item in team_member:
             team = item[0]
             player = item[2]
-            team_dic.setdefault(team, []).append(player)
-
-        #(team:(member_list))
-        team_dic = {team: tuple(players) for team, players in team_dic.items()}
-        print(team_dic)
+            team_d.setdefault(team, []).append([player,[]])
 
         # STEP 5: DB 연결 종료
         con_player.close() 
 
-        member_data = []
-
-        for team in team_dic:
-            for member in team:
-                print(member)
 
         for row in player_data:
-            print(row[-1]) #winner
-            print(row[1]) #blueteam
-            print(row[22]) #redteam
-            member_data.append(("팀", "포지션", "승", "킬", "데스", "어시스트"))
+            winner = row[-1]
+            blue = row[1]
+            red = row[22]
+            if winner==blue:  
+                # team_d[blue][]
+                
+                for j in range(5):
+                    blue_exist = False
+                    for i in range(len(team_d[blue][j][1])):
+                        # print(team_d[blue][j])
+                        if team_d[blue][j][1][i][0] == row[2 + 4*j]:
+                            blue_exist=True
+                            team_d[blue][j][1][i][1] = team_d[blue][j][1][i][1]+1
+
+                    if blue_exist == False:
+                        team_d[blue][j][1].append([row[2 + 4*j], 1, 0])
+
+                    
+                    red_exist = False
+                    for i in range(len(team_d[red][j][1])):
+                        # print(team_d[blue][j])
+                        if team_d[red][j][1][i][0] == row[23 + 4*j]:
+                            red_exist=True
+                            team_d[red][j][1][i][2] = team_d[red][j][1][i][2]+1
+
+                    if red_exist == False:
+                        team_d[red][j][1].append([row[23 + 4*j], 0, 1])
+            
+            elif winner==red:
+                for j in range(5):
+                    blue_exist = False
+                    for i in range(len(team_d[blue][j][1])):
+                        # print(team_d[blue][j])
+                        if team_d[blue][j][1][i][0] == row[2 + 4*j]:
+                            blue_exist=True
+                            team_d[blue][j][1][i][2] = team_d[blue][j][1][i][2]+1
+
+                    if blue_exist == False:
+                        team_d[blue][j][1].append([row[2 + 4*j], 0, 1])
+
+                    
+                    red_exist = False
+                    for i in range(len(team_d[red][j][1])):
+                        # print(team_d[blue][j])
+                        if team_d[red][j][1][i][0] == row[23 + 4*j]:
+                            red_exist=True
+                            team_d[red][j][1][i][1] = team_d[red][j][1][i][1]+1
+
+                    if red_exist == False:
+                        team_d[red][j][1].append([row[23 + 4*j], 1, 0])
+            
+        print(team_d)
+
+
+        member_data = []
+        for a in team_d:
+            for b in range(5):
+                print(team_d[a][b])
+                member_data.append([a, team_d[a][b][0], team_d[a][b][1]])
+
+        for a in member_data:
+            a[2] = sorted(a[2], key=lambda x: x[1] + x[2], reverse=True)
 
         print(member_data)
-        
 
         # Clear window 1 widgets
         for widget in self.winfo_children():
@@ -965,28 +1014,28 @@ class BackBanpickAnalyzer(tkinter.Tk):
         label_player=tkinter.Button(player_top, text="BACK", font=font1, bg="black", foreground="white",anchor='center',command=self.show_window_analyze)
         label_player.place(relx=0.8, rely=0.23)
 
-        player_treeview = ttk.Treeview(player_main, columns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],displaycolumns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],height=50,selectmode="browse")
+        player_treeview = ttk.Treeview(player_main, columns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],displaycolumns=["Player","MOST1",'MOST2','MOST3','MOST4','MOST5'],height=50)
         player_treeview.pack()
         
-        player_treeview.column('#0',width=100)
-        player_treeview.heading("#0",text="Player")
+        player_treeview.column('Player',width=100)
+        player_treeview.heading("Player",text="Player")
 
-        player_treeview.column('#1',width=236)
-        player_treeview.heading("#1",text="MOST1")
+        player_treeview.column('MOST1',width=236)
+        player_treeview.heading("MOST1",text="MOST1")
 
-        player_treeview.column('#2',width=236)
-        player_treeview.heading("#2",text="MOST2")
+        player_treeview.column('MOST2',width=236)
+        player_treeview.heading("MOST2",text="MOST2")
 
-        player_treeview.column('#3',width=236)
-        player_treeview.heading("#3",text="MOST3")
+        player_treeview.column('MOST3',width=236)
+        player_treeview.heading("MOST3",text="MOST3")
 
-        player_treeview.column('#4',width=236)
-        player_treeview.heading("#4",text="MOST4")
+        player_treeview.column('MOST4',width=236)
+        player_treeview.heading("MOST4",text="MOST4")
 
-        player_treeview.column('#5',width=236)
-        player_treeview.heading("#5",text="MOST5")
+        player_treeview.column('MOST5',width=236)
+        player_treeview.heading("MOST5",text="MOST5")
 
-        player_treeview["show"]="tree headings"
+        player_treeview["show"]="headings"
 
         treeview_data = [row[2] for row in team_member]
         my_tag='T1'
@@ -1003,8 +1052,16 @@ class BackBanpickAnalyzer(tkinter.Tk):
 
         
         
+        
+        treeview_data = [(row[1], row[2][0][0] + " : " + str(row[2][0][1]) + "/" + str(row[2][0][2]) if len(row[2])>=1 else "NONE", 
+                          row[2][1][0] + " : " + str(row[2][1][1]) + "/" + str(row[2][1][2]) if len(row[2])>=2 else "NONE",
+                          row[2][2][0] + " : " + str(row[2][2][1]) + "/" + str(row[2][2][2]) if len(row[2])>=3 else "NONE",
+                          row[2][3][0] + " : " + str(row[2][3][1]) + "/" + str(row[2][3][2]) if len(row[2])>=4 else "NONE", 
+                          row[2][4][0] + " : " + str(row[2][4][1]) + "/" + str(row[2][4][2]) if len(row[2])>=5 else "NONE") for row in member_data]
+        print(treeview_data)
+
         for i in range(len(treeview_data)):
-            player_treeview.insert('', 'end', text=treeview_data[i],tags=(my_tag))
+            player_treeview.insert('', 'end', values=treeview_data[i], tags=(my_tag))
             if (i+1<=4):my_tag='T1'
             elif (i+1<=9):my_tag='Gen'
             elif (i+1<=14):my_tag='KT'
@@ -1015,7 +1072,6 @@ class BackBanpickAnalyzer(tkinter.Tk):
             elif (i+1<=39):my_tag='DRX'
             elif (i+1<=44):my_tag='BRO'
             elif (i+1<=49):my_tag='NS'
-
 if __name__ == '__main__':
     app = BackBanpickAnalyzer()
     app.mainloop()
